@@ -98,7 +98,7 @@ export function cx(...c: (string | number | boolean | null | undefined)[]) {
 
 /** Visible sections in their saved order (falls back to all sections). */
 export function visibleSections(sections?: { id: string; visible: boolean }[] | null) {
-  const list = sections?.length ? sections : [{ id: "hero" }, { id: "countdown" }, { id: "story" }, { id: "gallery" }, { id: "events" }, { id: "rsvp" }].map((s) => ({ ...s, visible: true }));
+  const list = sections?.length ? sections : [{ id: "hero" }, { id: "countdown" }, { id: "story" }, { id: "timeline" }, { id: "kids" }, { id: "gallery" }, { id: "events" }, { id: "schedule" }, { id: "venue" }, { id: "rsvp" }].map((s) => ({ ...s, visible: true }));
   return list.filter((s) => s.visible).map((s) => s.id);
 }
 
@@ -111,4 +111,9 @@ export const CURRENT_INVITATION_COOKIE = "ec_invitation";
 
 export function lkr(n: number | null | undefined) {
   return `Rs. ${Math.round(Number(n) || 0).toLocaleString("en-LK")}`;
+}
+
+/** Google Maps embed that needs no API key. */
+export function mapEmbedUrl(venue: string) {
+  return `https://maps.google.com/maps?q=${encodeURIComponent(venue)}&z=15&output=embed`;
 }

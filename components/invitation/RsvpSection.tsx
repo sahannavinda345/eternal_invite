@@ -9,11 +9,13 @@ type Props = {
   /** Editor preview: replies are not sent. */
   demo?: boolean;
   tone?: Tone;
+  /** Hide the built-in "Kindly reply" heading when the design shows its own. */
+  showHeading?: boolean;
 };
 
 type Draft = { status: RsvpStatus | null; heads: number; message: string; saved: boolean; busy: boolean; error: string };
 
-export default function RsvpSection({ slug, token, guest, events, rsvpBy, demo = false, tone = "gold" }: Props) {
+export default function RsvpSection({ slug, token, guest, events, rsvpBy, demo = false, tone = "gold", showHeading = true }: Props) {
   const t = TONES[tone];
   const mine = events.filter((e) => guest.events.includes(e.key));
   const [drafts, setDrafts] = useState<Record<string, Draft>>(() =>
@@ -46,7 +48,7 @@ export default function RsvpSection({ slug, token, guest, events, rsvpBy, demo =
 
   return (
     <section className="flex flex-col gap-5">
-      <h2 className={t.heading}>Kindly reply{rsvpBy ? ` by ${rsvpBy}` : ""}</h2>
+      {showHeading ? <h2 className={t.heading}>Kindly reply{rsvpBy ? ` by ${rsvpBy}` : ""}</h2> : rsvpBy ? <p className={`text-center ${t.label}`}>Please reply by {rsvpBy}</p> : null}
       {mine.map((e) => {
         const d = drafts[e.key];
         return (

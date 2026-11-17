@@ -18,7 +18,7 @@ async function compressImage(file: File, max = 1800, quality = 0.84): Promise<Bl
 }
 
 /** Uploads a photo or song to the couple's own folder and returns its public URL. */
-export async function uploadMedia(file: File, invitationId: string, kind: "photo" | "music"): Promise<string> {
+export async function uploadMedia(file: File, invitationId: string, kind: "photo" | "music" | "video" | "png"): Promise<string> {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Please sign in again.");
@@ -26,7 +26,18 @@ export async function uploadMedia(file: File, invitationId: string, kind: "photo
   let body: Blob = file;
   let ext = "jpg";
   let contentType = "image/jpeg";
-  if (kind === "photo") {
+  if (kind === "video") {
+    if (!/^video\/(mp4|webm|quicktime)$/.test(file.type)) throw new Error("Choose an MP4, WebM or MOV video.");
+    if (file.size > 50 * 1024 * 1024) throw new Error("The video is larger than 50 MB. Export a shorter or smaller version (720p is plenty).");
+    ext = file.type === "video/webm" ? "webm" : file.type === "video/quicktime" ? "mov" : "mp4";
+    contentType = file.type;
+  } else if (kind === "png") {
+    // Illustrations keep their transparent background: no re-encoding, just a size check
+    if (!/^image\/(png|webp|jpeg)$/.test(file.type)) throw new Error("Choose a PNG, WebP or JPG image.");
+    if (file.size > 8 * 1024 * 1024) throw new Error("The image is larger than 8 MB.");
+    ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+    contentType = file.type;
+  } else if (kind === "photo") {
     if (!file.type.startsWith("image/")) throw new Error("Choose a photo (JPG, PNG or WebP).");
     body = await compressImage(file);
   } else {

@@ -7,15 +7,19 @@ export type EventItem = {
   note?: string; // e.g. "Poruwa nekatha 9:42 AM"
 };
 
-export type SectionId = "hero" | "countdown" | "story" | "gallery" | "events" | "rsvp";
+export type SectionId = "hero" | "countdown" | "story" | "timeline" | "kids" | "gallery" | "events" | "schedule" | "venue" | "rsvp";
 export type SectionSetting = { id: SectionId; visible: boolean };
 
 export const SECTION_META: Record<SectionId, { label: string; hint: string }> = {
   hero: { label: "Hero / couple intro", hint: "Names, families and the invitation line" },
   countdown: { label: "Countdown timer", hint: "Counts down to the first event" },
   story: { label: "Our story", hint: "A few lines about how you met" },
+  timeline: { label: "Love story timeline", hint: "Milestones by year (premium templates)" },
+  kids: { label: "Then & now photos", hint: "Childhood and today photos (premium templates)" },
   gallery: { label: "Photo gallery", hint: "Your favourite photos together" },
   events: { label: "Events & venues", hint: "Dates, times, venues, directions" },
+  schedule: { label: "How the day unfolds", hint: "Times for each part of the day (premium templates)" },
+  venue: { label: "Venue & map", hint: "Embedded map with directions (premium templates)" },
   rsvp: { label: "RSVP", hint: "Reply-by date and guest replies" },
 };
 
@@ -40,8 +44,19 @@ export type Invitation = {
   cover_photo: string | null; // couple photo for the opening screen
   music_url: string | null; // background music
   gallery: string[]; // photo URLs
+  intro_video: string | null; // cinematic clip after "Open"
+  illustration: string | null; // illustrated couple
+  partner1_parents: string | null;
+  partner2_parents: string | null;
+  timeline: TimelineItem[];
+  schedule: ScheduleItem[];
+  polaroids: Polaroids;
   created_at: string;
 };
+
+export type TimelineItem = { year: string; title: string; text: string };
+export type ScheduleItem = { time: string; title: string; text: string };
+export type Polaroids = { p1_then?: string; p2_then?: string; p1_now?: string; p2_now?: string };
 
 export type RsvpStatus = "accepted" | "declined";
 

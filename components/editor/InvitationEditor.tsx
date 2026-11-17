@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "r
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { setCurrentInvitation } from "@/lib/current-invitation";
-import { SECTION_META, withAllSections, type EventItem, type Invitation, type SectionId } from "@/lib/types";
+import { SECTION_META, withAllSections, type EventItem, type Invitation, type Polaroids, type SectionId } from "@/lib/types";
 import { deleteMedia, uploadMedia } from "@/lib/upload";
 import { cx, invitationLink, isoToLocal, localToIso, randomKey, slugify, timeAgo } from "@/lib/utils";
 import { DESIGNS } from "@/components/designs";
@@ -42,14 +42,14 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [hist, dispatch] = useReducer(historyReducer, {
-    draft: { ...initial, sections: withAllSections(initial.sections), gallery: initial.gallery ?? [] },
+    draft: { ...initial, sections: withAllSections(initial.sections), gallery: initial.gallery ?? [], timeline: initial.timeline ?? [], schedule: initial.schedule ?? [], polaroids: initial.polaroids ?? {} },
     past: [], future: [], lastPush: 0,
   });
   const { draft, past, future } = hist;
   const [status, setStatus] = useState<Status>("saved");
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [openId, setOpenId] = useState<SectionId | "settings" | "music" | null>("hero");
+  const [openId, setOpenId] = useState<SectionId | "settings" | "music" | "intro" | null>("hero");
   const [uploading, setUploading] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [showPhone, setShowPhone] = useState(false); // phones: toggle preview
@@ -89,6 +89,9 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
         rsvp_by: draft.rsvp_by || null, whatsapp: draft.whatsapp?.replace(/\D/g, "") || null,
         published: draft.published,
         cover_photo: draft.cover_photo || null, music_url: draft.music_url || null, gallery: draft.gallery ?? [],
+        intro_video: draft.intro_video || null, illustration: draft.illustration || null,
+        partner1_parents: draft.partner1_parents || null, partner2_parents: draft.partner2_parents || null,
+        timeline: draft.timeline ?? [], schedule: draft.schedule ?? [], polaroids: draft.polaroids ?? {},
       }).eq("id", draft.id);
       if (error) {
         setStatus("error");
@@ -161,6 +164,33 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
     }
   }
 
+  /** Upload one file into a single field (intro video, illustration, a polaroid). */
+  async function uploadInto(files: FileList | null, kind: "video" | "png" | "photo", apply: (url: string) => void, old?: string | null) {
+    if (!files?.length) return;
+    setError("");
+    try {
+      setUploading(kind === "video" ? "Uploading video… (large files take a minute)" : "Uploading image…");
+      const url = await uploadMedia(files[0], draft.id, kind);
+      apply(url);
+      if (old) deleteMedia(old);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed. Please try again.");
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  function picker(id: string, label: string, accept: string, onFiles: (f: FileList | null) => void) {
+    return (
+      <label htmlFor={id} className={cx("btn cursor-pointer", uploading && "pointer-events-none opacity-40")}>
+        {label}
+        <input id={id} type="file" accept={accept} className="sr-only" onChange={(e) => { onFiles(e.target.files); e.target.value = ""; }} />
+      </label>
+    );
+  }
+
+  const setPolaroid = (k: keyof Polaroids, v: string | undefined) => update({ polaroids: { ...(draft.polaroids ?? {}), [k]: v } });
+
   function removeGalleryPhoto(url: string) {
     update({ gallery: (draft.gallery ?? []).filter((g) => g !== url) });
     deleteMedia(url);
@@ -211,6 +241,25 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
                 </div>
               </div>
             </div>
+            <label className="label" htmlFor="p1par">{draft.partner1 || "Partner 1"}&apos;s parents
+              <input id="p1par" className="field normal-case tracking-normal" value={draft.partner1_parents ?? ""} placeholder="Son of Mr. & Mrs. Fernando" onChange={(e) => update({ partner1_parents: e.target.value })} />
+            </label>
+            <label className="label" htmlFor="p2par">{draft.partner2 || "Partner 2"}&apos;s parents
+              <input id="p2par" className="field normal-case tracking-normal" value={draft.partner2_parents ?? ""} placeholder="Daughter of Mr. & Mrs. Perera" onChange={(e) => update({ partner2_parents: e.target.value })} />
+            </label>
+            <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+              {draft.illustration ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={draft.illustration} alt="Illustration" className="h-20 w-16 border border-line object-contain" />
+              ) : <div className="grid h-20 w-16 place-items-center border border-dashed border-line text-center text-[0.55rem] text-muted">No art</div>}
+              <div className="flex flex-col gap-2">
+                <span className="text-[0.65rem] uppercase tracking-[0.2em] text-muted">Illustrated couple · premium templates (PNG with transparent background)</span>
+                <div className="flex flex-wrap gap-2">
+                  {picker("illus-upload", draft.illustration ? "Change art" : "Upload art", "image/png,image/webp,image/jpeg", (f) => uploadInto(f, "png", (url) => update({ illustration: url }), draft.illustration))}
+                  {draft.illustration && <button type="button" className="btn" onClick={() => { const u = draft.illustration!; update({ illustration: null }); deleteMedia(u); }}>Remove</button>}
+                </div>
+              </div>
+            </div>
             <label className="label sm:col-span-2" htmlFor="fam">Families line
               <textarea id="fam" className="field min-h-[70px] normal-case tracking-normal" value={draft.families ?? ""}
                 placeholder="Mr. & Mrs. Sunil Jayawardena and Mr. & Mrs. Ranjith Perera request the pleasure of your company…"
@@ -227,6 +276,56 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
               placeholder="We met at Peradeniya in 2018…" onChange={(e) => update({ story: e.target.value })} />
           </label>
         );
+      case "timeline":
+        return (
+          <div className="flex flex-col gap-3">
+            {(draft.timeline ?? []).map((t, i) => (
+              <div key={i} className="grid gap-2 border border-line p-3 sm:grid-cols-[6rem_1fr]">
+                <input aria-label="Year" className="field" value={t.year} placeholder="2019" onChange={(e) => update({ timeline: draft.timeline.map((x, j) => (j === i ? { ...x, year: e.target.value } : x)) })} />
+                <input aria-label="Title" className="field" value={t.title} placeholder="The beginning" onChange={(e) => update({ timeline: draft.timeline.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)) })} />
+                <textarea aria-label="What happened" className="field min-h-[60px] sm:col-span-2" value={t.text} placeholder="Two paths crossed on an ordinary day…" onChange={(e) => update({ timeline: draft.timeline.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)) })} />
+                <button type="button" className="justify-self-start text-[0.62rem] uppercase tracking-[0.2em] text-red-300" onClick={() => update({ timeline: draft.timeline.filter((_, j) => j !== i) })}>Remove</button>
+              </div>
+            ))}
+            <button type="button" className="btn self-start" onClick={() => update({ timeline: [...(draft.timeline ?? []), { year: "", title: "", text: "" }] })}>+ Add milestone</button>
+          </div>
+        );
+      case "kids":
+        return (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {([["p1_then", `${draft.partner1 || "Partner 1"} as a child`], ["p2_then", `${draft.partner2 || "Partner 2"} as a child`], ["p1_now", `${draft.partner1 || "Partner 1"} today`], ["p2_now", `${draft.partner2 || "Partner 2"} today`]] as const).map(([k, label]) => (
+              <div key={k} className="flex items-center gap-3 border border-line p-2">
+                {draft.polaroids?.[k] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={draft.polaroids[k]} alt={label} className="h-16 w-14 object-cover" />
+                ) : <div className="grid h-16 w-14 place-items-center border border-dashed border-line text-[0.55rem] text-muted">Photo</div>}
+                <div className="flex min-w-0 flex-col gap-1.5">
+                  <span className="truncate text-xs text-muted">{label}</span>
+                  <div className="flex gap-1.5">
+                    {picker(`pol-${k}`, draft.polaroids?.[k] ? "Change" : "Upload", "image/*", (f) => uploadInto(f, "photo", (url) => setPolaroid(k, url), draft.polaroids?.[k]))}
+                    {draft.polaroids?.[k] && <button type="button" className="btn px-3" onClick={() => { const u = draft.polaroids[k]!; setPolaroid(k, undefined); deleteMedia(u); }}>×</button>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case "schedule":
+        return (
+          <div className="flex flex-col gap-3">
+            {(draft.schedule ?? []).map((t, i) => (
+              <div key={i} className="grid gap-2 border border-line p-3 sm:grid-cols-[7rem_1fr]">
+                <input aria-label="Time" className="field" value={t.time} placeholder="5:30 PM" onChange={(e) => update({ schedule: draft.schedule.map((x, j) => (j === i ? { ...x, time: e.target.value } : x)) })} />
+                <input aria-label="What happens" className="field" value={t.title} placeholder="Guest arrival" onChange={(e) => update({ schedule: draft.schedule.map((x, j) => (j === i ? { ...x, title: e.target.value } : x)) })} />
+                <input aria-label="Details" className="field sm:col-span-2" value={t.text} placeholder="Welcome drinks on the lawn" onChange={(e) => update({ schedule: draft.schedule.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)) })} />
+                <button type="button" className="justify-self-start text-[0.62rem] uppercase tracking-[0.2em] text-red-300" onClick={() => update({ schedule: draft.schedule.filter((_, j) => j !== i) })}>Remove</button>
+              </div>
+            ))}
+            <button type="button" className="btn self-start" onClick={() => update({ schedule: [...(draft.schedule ?? []), { time: "", title: "", text: "" }] })}>+ Add moment</button>
+          </div>
+        );
+      case "venue":
+        return <p className="text-sm text-muted">Shows a Google map of the first event&apos;s venue{draft.events[0]?.venue ? ` (${draft.events[0].venue})` : ""}. Write the venue the way you&apos;d search for it in Google Maps.</p>;
       case "gallery":
         return (
           <div className="flex flex-col gap-3">
@@ -360,6 +459,24 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
             );
           })}
         </ul>
+
+        <div className="card">
+          <button type="button" className="flex w-full items-center justify-between p-3 text-left" aria-expanded={openId === "intro"}
+            onClick={() => setOpenId(openId === "intro" ? null : "intro")}>
+            <span><span className="block text-sm text-white">Intro video</span><span className="text-xs text-muted">{draft.intro_video ? "Plays after the guest taps Open" : "Optional · a short cinematic clip before the invitation"}</span></span>
+            <span className={cx("px-1 text-muted", openId === "intro" && "rotate-180")}>⌄</span>
+          </button>
+          {openId === "intro" && (
+            <div className="flex flex-col gap-3 border-t border-line p-4">
+              {draft.intro_video && <video src={draft.intro_video} controls playsInline className="max-h-72 w-full bg-black" preload="metadata" />}
+              <div className="flex flex-wrap gap-2">
+                {picker("intro-upload", draft.intro_video ? "Change video" : "Upload video (MP4)", "video/mp4,video/webm,video/quicktime", (f) => uploadInto(f, "video", (url) => update({ intro_video: url }), draft.intro_video))}
+                {draft.intro_video && <button type="button" className="btn" onClick={() => { const u = draft.intro_video!; update({ intro_video: null }); deleteMedia(u); }}>Remove</button>}
+              </div>
+              <p className="text-xs text-muted">Best: a vertical 9:16 clip, 8–15 seconds, under 20 MB. Guests can skip it. Used by Royal Kandyan and Watercolour Story.</p>
+            </div>
+          )}
+        </div>
 
         <div className="card">
           <button type="button" className="flex w-full items-center justify-between p-3 text-left" aria-expanded={openId === "music"}

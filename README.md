@@ -122,6 +122,7 @@ app/
     guests/rsvp/page.tsx       RSVP management (live)
 components/
   designs/index.ts             List of designs shown in the template picker
+  designs/premium/             Royal Kandyan and Watercolour Story (+ parts.tsx: shared blocks)
   designs/animated/            Animated designs: Kandyan Heritage, Chapel Doors, Velvet Night,
                                Wax Seal, Crimson Curtain, Coastal Drive, Boarding Pass
                                (ThemedSections.tsx = shared sections, ornaments.tsx = SVG art, Reveal.tsx = scroll fade-in)
@@ -145,6 +146,15 @@ Guests don't sign in. Each guest link has a private token (`?g=…`). The guest 
 
 1. Copy `components/designs/EternalNoir.tsx` to e.g. `components/designs/IvoryModern.tsx` and restyle it. Keep the `blocks` map so section order and show/hide keep working, and respect the `preview` prop.
 2. Add it to the `DESIGNS` list in `components/designs/index.ts`. It then appears in the editor's template picker.
+
+## Premium templates (Royal Kandyan, Watercolour Story)
+
+Run `supabase/migrations/005_premium.sql` once. It adds the extra content these templates use and lets the media bucket hold videos up to 50 MB.
+
+What they show, all edited in the live editor:
+- **Intro video** – a short clip (vertical 9:16, 8–15 s, under 20 MB) that plays with sound after the guest taps *Open*, with a *Skip* button, then a burst of petals reveals the names. Make these clips per couple with an AI video tool from their photo (sold as a premium extra). Without a video, the petal burst plays straight away.
+- **Illustrated couple** – PNG with a transparent background, shown under the date.
+- **Parents** for each partner, a large date block, **love story timeline**, **then & now** childhood photos (polaroids), **scratch-to-reveal date** card (Watercolour Story), **how the day unfolds** schedule, **embedded Google map** of the venue, a closing *save the date* card, and a **floating menu bar** to jump between sections.
 
 ## Animated designs
 

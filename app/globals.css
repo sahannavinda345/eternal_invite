@@ -42,6 +42,8 @@
 @keyframes ec-load   { from { width: 0%; } to { width: 100%; } }
 @keyframes ec-tear   { to { transform: translateY(120%) rotate(18deg); opacity: 0; } }
 @keyframes ec-fly    { 0% { transform: translate(-20vw, 30px) rotate(-8deg); } 100% { transform: translate(120vw, -160px) rotate(-14deg); } }
+@keyframes ec-burst  { 0% { transform: translate(-50%,-50%) scale(.2); opacity: 0; } 15% { opacity: 1; } 60% { transform: translate(calc(-50% + var(--bx)), calc(-50% + var(--by))) scale(1) rotate(160deg); opacity: 1; } 100% { transform: translate(calc(-50% + var(--bx) * 1.1), calc(-50% + var(--by) + 260px)) rotate(320deg); opacity: 0; } }
+@keyframes ec-kenburns { from { transform: scale(1.12) translateY(2%); } to { transform: scale(1) translateY(0); } }
 @keyframes ec-shine  { from { background-position: -200% 0; } to { background-position: 200% 0; } }
 
 .anim-rise    { animation: ec-rise 1s cubic-bezier(.2,.7,.2,1) both; }

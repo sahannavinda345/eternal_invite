@@ -3,6 +3,8 @@ import type { ComponentType } from "react";
 import type { DesignProps } from "./types";
 
 // Each design is loaded only when it is shown, so guests download one design, not all of them.
+const RoyalKandyan = dynamic<DesignProps>(() => import("./premium/RoyalKandyan"));
+const WatercolorStory = dynamic<DesignProps>(() => import("./premium/WatercolorStory"));
 const GoldenPoruwa = dynamic<DesignProps>(() => import("./GoldenPoruwa"));
 const EternalNoir = dynamic<DesignProps>(() => import("./EternalNoir"));
 const KandyanHeritage = dynamic<DesignProps>(() => import("./animated/KandyanHeritage"));
@@ -16,7 +18,7 @@ const BoardingPass = dynamic<DesignProps>(() => import("./animated/BoardingPass"
 export type DesignInfo = {
   id: string;
   name: string;
-  category: "Traditional" | "Church" | "Homecoming" | "Modern" | "Classic" | "Cinematic";
+  category: "Traditional" | "Church" | "Homecoming" | "Modern" | "Classic" | "Cinematic" | "Premium";
   animated: boolean;
   swatch: string;
   Component: ComponentType<DesignProps>;
@@ -24,6 +26,8 @@ export type DesignInfo = {
 
 /** Add new designs here: they appear in the editor's template picker automatically. */
 export const DESIGNS: DesignInfo[] = [
+  { id: "royal-kandyan", name: "Royal Kandyan", category: "Premium", animated: true, swatch: "#c9ae78", Component: RoyalKandyan },
+  { id: "watercolor-story", name: "Watercolour Story", category: "Premium", animated: true, swatch: "#f3c9d3", Component: WatercolorStory },
   { id: "kandyan-heritage", name: "Kandyan Heritage", category: "Traditional", animated: true, swatch: "#b08a3e", Component: KandyanHeritage },
   { id: "chapel-doors", name: "Chapel Doors", category: "Church", animated: true, swatch: "#e9dfcb", Component: ChapelDoors },
   { id: "velvet-night", name: "Velvet Night", category: "Homecoming", animated: true, swatch: "#4a2140", Component: VelvetNight },
