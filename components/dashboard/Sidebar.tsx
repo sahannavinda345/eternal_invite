@@ -1,0 +1,100 @@
+"use client";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import type { EventItem } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
+import { setCurrentInvitation } from "@/lib/current-invitation";
+import { cx, daysUntil, formatShortDate } from "@/lib/utils";
+import Logo from "@/components/Logo";
+
+const groups: { title: string; items: { href: string; label: string; soon?: boolean }[] }[] = [
+  { title: "Invitation", items: [
+    { href: "/dashboard", label: "Overview" },
+    { href: "/dashboard/invitations", label: "My invitations" },
+    { href: "/dashboard/invitation", label: "Edit invitation" },
+  ] },
+  { title: "Guest management", items: [
+    { href: "/dashboard/guests/add", label: "Add guests" },
+    { href: "/dashboard/guests/links", label: "Guest list & links" },
+    { href: "/dashboard/guests/rsvp", label: "RSVP management" },
+    { href: "#", label: "Table arrangement", soon: true },
+    { href: "#", label: "Guest gallery", soon: true },
+  ] },
+];
+
+type Props = {
+  couple: string;
+  firstEvent: EventItem | null;
+  invitations: { id: string; title: string }[];
+  currentId: string | null;
+};
+
+export default function Sidebar({ couple, firstEvent, invitations, currentId }: Props) {
+  const path = usePathname();
+  const router = useRouter();
+  const days = daysUntil(firstEvent?.starts_at);
+
+  async function signOut() {
+    await createClient().auth.signOut();
+    router.replace("/login");
+  }
+
+  return (
+    <aside className="flex flex-wrap items-center gap-4 border-b border-line bg-canvas px-4 py-3 md:sticky md:top-0 md:h-screen md:flex-col md:flex-nowrap md:items-stretch md:overflow-y-auto md:border-b-0 md:border-r md:px-3.5 md:py-5">
+      <Logo href="/dashboard" size={28} />
+
+      {days !== null && (
+        <div className="ml-auto flex items-center gap-3 border border-line px-3 py-2 md:ml-0">
+          <b className="font-display text-2xl font-light tabular-nums text-white">{days}</b>
+          <span className="text-[0.6rem] uppercase leading-snug tracking-[0.18em] text-muted">
+            Days until<br />{formatShortDate(firstEvent?.starts_at)}
+          </span>
+        </div>
+      )}
+
+      {invitations.length > 1 && (
+        <label className="label w-full" htmlFor="current-inv">Working on
+          <select id="current-inv" className="field normal-case tracking-normal" value={currentId ?? ""}
+            onChange={(e) => { setCurrentInvitation(e.target.value); router.refresh(); }}>
+            {invitations.map((i) => <option key={i.id} value={i.id}>{i.title}</option>)}
+          </select>
+        </label>
+      )}
+
+      {groups.map((g) => (
+        <nav key={g.title} className="hidden flex-col md:flex" aria-label={g.title}>
+          <h4 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.24em] text-muted">{g.title}</h4>
+          {g.items.map((it) =>
+            it.soon ? (
+              <span key={it.label} className="flex items-center px-2.5 py-1.5 text-sm text-white/35">
+                {it.label}
+                <span className="ml-auto border border-line px-1.5 text-[0.55rem] uppercase tracking-wider">Soon</span>
+              </span>
+            ) : (
+              <Link key={it.href} href={it.href}
+                className={cx("border-l px-2.5 py-1.5 text-sm", path === it.href ? "border-white bg-white/[0.06] text-white" : "border-transparent text-white/60 hover:text-white")}>
+                {it.label}
+              </Link>
+            )
+          )}
+        </nav>
+      ))}
+
+      {/* Phone navigation */}
+      <nav className="flex w-full gap-1.5 overflow-x-auto md:hidden" aria-label="Dashboard">
+        {groups.flatMap((g) => g.items).filter((i) => !i.soon).map((it) => (
+          <Link key={it.href} href={it.href}
+            className={cx("whitespace-nowrap px-3 py-1.5 text-xs uppercase tracking-[0.14em]", path === it.href ? "bg-white text-black" : "text-muted")}>
+            {it.label}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="mt-auto hidden items-center gap-2.5 border-t border-line pt-3.5 text-sm md:flex">
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/30 text-xs">{couple.charAt(0).toUpperCase()}</div>
+        <div className="min-w-0 flex-1 truncate">{couple}</div>
+        <button type="button" onClick={signOut} className="text-[0.6rem] uppercase tracking-[0.2em] text-muted hover:text-white">Sign out</button>
+      </div>
+    </aside>
+  );
+}
