@@ -15,9 +15,10 @@ const KINDS = [
 ];
 
 /** Creates a new invitation with sensible defaults, then opens the editor. */
-export default function CreateInvitation({ partner1 = "", partner2 = "", isFirst }: { partner1?: string; partner2?: string; isFirst: boolean }) {
+export default function CreateInvitation({ partner1 = "", partner2 = "", isFirst, allowedDesigns = null }: { partner1?: string; partner2?: string; isFirst: boolean; allowedDesigns?: string[] | null }) {
+  const designs = DESIGNS.filter((d) => !allowedDesigns || allowedDesigns.includes(d.id));
   const router = useRouter();
-  const [f, setF] = useState({ title: isFirst ? "Wedding" : "Homecoming", partner1, partner2, design: DESIGNS[0].id });
+  const [f, setF] = useState({ title: isFirst ? "Wedding" : "Homecoming", partner1, partner2, design: (designs[0] ?? DESIGNS[0]).id });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -69,7 +70,7 @@ export default function CreateInvitation({ partner1 = "", partner2 = "", isFirst
       </label>
       <label className="label sm:col-span-2" htmlFor="design">Template
         <select id="design" className="field normal-case tracking-normal" value={f.design} onChange={(e) => setF({ ...f, design: e.target.value })}>
-          {DESIGNS.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          {designs.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </select>
       </label>
       {error && <p className="bg-red-400/10 p-3 text-sm text-red-300 sm:col-span-2">{error}</p>}

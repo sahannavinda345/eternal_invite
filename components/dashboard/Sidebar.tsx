@@ -27,9 +27,10 @@ type Props = {
   firstEvent: EventItem | null;
   invitations: { id: string; title: string }[];
   currentId: string | null;
+  isAdmin?: boolean;
 };
 
-export default function Sidebar({ couple, firstEvent, invitations, currentId }: Props) {
+export default function Sidebar({ couple, firstEvent, invitations, currentId, isAdmin = false }: Props) {
   const path = usePathname();
   const router = useRouter();
   const days = daysUntil(firstEvent?.starts_at);
@@ -89,6 +90,10 @@ export default function Sidebar({ couple, firstEvent, invitations, currentId }: 
           </Link>
         ))}
       </nav>
+
+      {isAdmin && (
+        <Link href="/admin" className="border border-white/30 px-2.5 py-2 text-center text-[0.62rem] uppercase tracking-[0.24em] text-white hover:border-white">Admin panel →</Link>
+      )}
 
       <div className="mt-auto hidden items-center gap-2.5 border-t border-line pt-3.5 text-sm md:flex">
         <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/30 text-xs">{couple.charAt(0).toUpperCase()}</div>

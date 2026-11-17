@@ -108,3 +108,7 @@ export function randomKey(n = 5) {
 }
 
 export const CURRENT_INVITATION_COOKIE = "ec_invitation";
+
+export function lkr(n: number | null | undefined) {
+  return `Rs. ${Math.round(Number(n) || 0).toLocaleString("en-LK")}`;
+}

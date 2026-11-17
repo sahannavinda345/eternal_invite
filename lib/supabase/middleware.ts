@@ -29,7 +29,7 @@ export async function updateSession(request: NextRequest) {
 
   // Dashboard and password pages need a signed-in couple
   const path = request.nextUrl.pathname;
-  if (!user && (path.startsWith("/dashboard") || path.startsWith("/set-password"))) {
+  if (!user && (path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/set-password"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";

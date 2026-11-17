@@ -37,7 +37,8 @@ function historyReducer(h: History, a: Action): History {
   }
 }
 
-export default function InvitationEditor({ initial, invitations }: { initial: Invitation; invitations: Pick<Invitation, "id" | "title">[] }) {
+export default function InvitationEditor({ initial, invitations, allowedDesigns = null }: { initial: Invitation; invitations: Pick<Invitation, "id" | "title">[]; allowedDesigns?: string[] | null }) {
+  const canUse = (id: string) => !allowedDesigns || allowedDesigns.includes(id);
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [hist, dispatch] = useReducer(historyReducer, {
@@ -312,14 +313,15 @@ export default function InvitationEditor({ initial, invitations }: { initial: In
           </label>
           <label className="label" htmlFor="tpl">Template
             <select id="tpl" className="field normal-case tracking-normal" value={draft.design} onChange={(e) => update({ design: e.target.value })}>
-              {DESIGNS.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              {DESIGNS.map((d) => <option key={d.id} value={d.id} disabled={!canUse(d.id)}>{d.name}{canUse(d.id) ? "" : " · upgrade"}</option>)}
             </select>
           </label>
           <div className="flex flex-wrap gap-2 sm:col-span-2">
             {DESIGNS.map((d) => (
-              <button key={d.id} type="button" onClick={() => update({ design: d.id })}
-                className={cx("flex items-center gap-2 border px-3 py-2 text-xs", draft.design === d.id ? "border-white text-white" : "border-line text-muted hover:border-white/40")}>
-                <span className="h-3.5 w-3.5 rounded-full border border-white/30" style={{ background: d.swatch }} />{d.name}
+              <button key={d.id} type="button" onClick={() => canUse(d.id) && update({ design: d.id })} disabled={!canUse(d.id)}
+                title={canUse(d.id) ? undefined : "Not included in your plan – contact us to upgrade"}
+                className={cx("flex items-center gap-2 border px-3 py-2 text-xs", draft.design === d.id ? "border-white text-white" : "border-line text-muted hover:border-white/40", !canUse(d.id) && "cursor-not-allowed opacity-40 hover:border-line")}>
+                <span className="h-3.5 w-3.5 rounded-full border border-white/30" style={{ background: d.swatch }} />{d.name}{!canUse(d.id) && " · upgrade"}
               </button>
             ))}
           </div>

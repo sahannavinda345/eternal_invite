@@ -1,14 +1,17 @@
+import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
-import GoldenPoruwa from "./GoldenPoruwa";
-import EternalNoir from "./EternalNoir";
-import KandyanHeritage from "./animated/KandyanHeritage";
-import ChapelDoors from "./animated/ChapelDoors";
-import VelvetNight from "./animated/VelvetNight";
-import WaxSeal from "./animated/WaxSeal";
-import CrimsonCurtain from "./animated/CrimsonCurtain";
-import CoastalDrive from "./animated/CoastalDrive";
-import BoardingPass from "./animated/BoardingPass";
 import type { DesignProps } from "./types";
+
+// Each design is loaded only when it is shown, so guests download one design, not all of them.
+const GoldenPoruwa = dynamic<DesignProps>(() => import("./GoldenPoruwa"));
+const EternalNoir = dynamic<DesignProps>(() => import("./EternalNoir"));
+const KandyanHeritage = dynamic<DesignProps>(() => import("./animated/KandyanHeritage"));
+const ChapelDoors = dynamic<DesignProps>(() => import("./animated/ChapelDoors"));
+const VelvetNight = dynamic<DesignProps>(() => import("./animated/VelvetNight"));
+const WaxSeal = dynamic<DesignProps>(() => import("./animated/WaxSeal"));
+const CrimsonCurtain = dynamic<DesignProps>(() => import("./animated/CrimsonCurtain"));
+const CoastalDrive = dynamic<DesignProps>(() => import("./animated/CoastalDrive"));
+const BoardingPass = dynamic<DesignProps>(() => import("./animated/BoardingPass"));
 
 export type DesignInfo = {
   id: string;

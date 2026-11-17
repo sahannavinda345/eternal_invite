@@ -57,7 +57,27 @@ Add yourself as a test couple first (see *Adding a paying couple*), open http://
 
 ---
 
+## Admin panel (`/admin`)
+
+Manage every couple from one place: add couples, choose their plan and templates, set how many invitations they can make, record payments, pause or remove them, reset passwords, and publish/unpublish any invitation.
+
+**One-time setup**
+1. Run `supabase/migrations/004_admin.sql` in the SQL Editor.
+2. Make yourself admin – run this with your own email:
+   `update public.profiles set role = 'admin', max_invitations = 100 where email = 'you@example.com';`
+3. Copy the **service_role** key from Supabase → Project Settings → API and add it as `SUPABASE_SERVICE_ROLE_KEY`:
+   - in `.env.local` on your computer, and
+   - in Vercel → Settings → Environment Variables (no `NEXT_PUBLIC_` prefix), then redeploy.
+   This key has full access to your database. Never share it or paste it into chat, and never rename it with `NEXT_PUBLIC_`.
+4. Sign in – admins land on `/admin`.
+
+**What's enforced:** the database itself stops couples from creating more invitations than their limit, from switching to a template outside their plan, and from editing while suspended or after their *Access until* date. Published invitations stay online for guests even when a couple is paused – unpublish them from the couple's page if needed.
+
+**Plans** (`/admin/plans`): Basic, Premium and Signature are created for you – change prices, invitation counts and templates, or add your own. Choosing a plan when adding a couple copies its limits; you can then adjust that couple individually.
+
 ## Adding a paying couple (manual for now)
+
+Easiest: **Admin panel → Add couple**. The steps below are the manual way in Supabase, if you ever need it.
 
 There is no public sign-up. After a couple pays, give them access in Supabase:
 
@@ -87,6 +107,7 @@ Supabase's built-in email service only sends a few emails per hour. Before launc
 ```
 app/
   page.tsx                     Landing page (your business homepage)
+  admin/                       Admin panel: overview, couples, add couple, plans & templates
   login/page.tsx               Couple sign in + forgot password (no public sign-up)
   set-password/page.tsx        Choose a password after an invite or reset email
   auth/confirm/route.ts        Handles the links in Supabase emails

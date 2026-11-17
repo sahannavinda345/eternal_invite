@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { GuestView, Invitation } from "@/lib/types";
@@ -10,7 +11,7 @@ type Props = {
   searchParams: Promise<{ g?: string }>;
 };
 
-async function load(slug: string, token?: string) {
+const load = cache(async function load(slug: string, token?: string) {
   const supabase = await createClient();
   const { data: invitation } = await supabase.from("invitations").select("*").eq("slug", slug).maybeSingle<Invitation>();
   if (!invitation) return { invitation: null, guest: null };
@@ -20,7 +21,7 @@ async function load(slug: string, token?: string) {
     guest = (data as GuestView | null) ?? null;
   }
   return { invitation, guest };
-}
+});
 
 // WhatsApp uses these tags for the link preview
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {

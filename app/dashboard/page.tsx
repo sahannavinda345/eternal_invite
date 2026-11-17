@@ -12,13 +12,13 @@ import { daysUntil, formatShortDate, invitationLink, timeAgo } from "@/lib/utils
 export const metadata = { title: "Overview" };
 
 export default async function Overview() {
-  const { supabase, invitation: inv, invitations } = await getSession();
+  const { supabase, invitation: inv, invitations, profile } = await getSession();
 
   if (!inv) {
     return (
       <>
         <PageHead eyebrow="Welcome" title="Let's begin your chapter" sub="Create your first invitation. You'll design it with a live phone preview." />
-        <CreateInvitation isFirst />
+        <CreateInvitation isFirst allowedDesigns={profile?.role === "admin" ? null : profile?.allowed_designs ?? null} />
       </>
     );
   }

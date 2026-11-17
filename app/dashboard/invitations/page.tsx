@@ -10,13 +10,13 @@ import { formatShortDate, invitationLink } from "@/lib/utils";
 export const metadata = { title: "My invitations" };
 
 export default async function MyInvitationsPage() {
-  const { invitations } = await getSession();
+  const { invitations, maxInvitations, canCreate } = await getSession();
 
   return (
     <>
       <PageHead eyebrow="Invitation" title={`My invitations (${invitations.length})`}
-        sub="Every invitation you've created – publish, share or edit."
-        action={<Link href="/dashboard/invitations/new" className="btn-primary">+ New invitation</Link>} />
+        sub={`Every invitation you've created – publish, share or edit.${Number.isFinite(maxInvitations) ? ` Your plan: ${invitations.length} of ${maxInvitations} used.` : ""}`}
+        action={canCreate ? <Link href="/dashboard/invitations/new" className="btn-primary">+ New invitation</Link> : <Link href="/dashboard/invitations/new" className="btn">Need another invitation?</Link>} />
 
       {!invitations.length && (
         <div className="card flex flex-col items-center gap-3 p-10 text-center">

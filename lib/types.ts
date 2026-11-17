@@ -86,3 +86,40 @@ export function withAllSections(saved?: SectionSetting[] | null): SectionSetting
   DEFAULT_SECTIONS.forEach((d, i) => { if (!ids.has(d.id)) out.splice(Math.min(i, out.length), 0, d); });
   return out;
 }
+
+export type Plan = {
+  id: string;
+  name: string;
+  price: number; // LKR
+  max_invitations: number;
+  allowed_designs: string[] | null; // null = every template
+  sort: number;
+};
+
+export type Profile = {
+  id: string;
+  email: string | null;
+  couple_name: string | null;
+  phone: string | null;
+  role: "couple" | "admin";
+  plan_id: string | null;
+  max_invitations: number;
+  allowed_designs: string[] | null; // null = every template
+  status: "active" | "suspended";
+  paid_amount: number;
+  expires_at: string | null; // YYYY-MM-DD
+  notes: string | null;
+  created_at: string;
+};
+
+/** Paused = suspended by the admin, or past the access end date. */
+export function isPaused(p: Pick<Profile, "status" | "expires_at" | "role"> | null) {
+  if (!p || p.role === "admin") return false;
+  if (p.status !== "active") return true;
+  return !!p.expires_at && p.expires_at < new Date().toISOString().slice(0, 10);
+}
+
+export function designAllowed(p: Pick<Profile, "allowed_designs" | "role"> | null, designId: string) {
+  if (!p || p.role === "admin" || !p.allowed_designs) return true;
+  return p.allowed_designs.includes(designId);
+}

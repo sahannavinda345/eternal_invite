@@ -34,7 +34,9 @@ export default function LoginPage() {
           ? "That email and password don't match. Check them, or reset your password below."
           : error.message });
       } else {
-        router.replace("/dashboard");
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: prof } = user ? await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle() : { data: null };
+        router.replace(prof?.role === "admin" ? "/admin" : "/dashboard");
         router.refresh();
       }
     } else {
