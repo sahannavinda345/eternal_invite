@@ -44,7 +44,7 @@ export function formatShortDate(iso?: string) {
 
 export function daysUntil(iso?: string) {
   if (!valid(iso)) return null;
-  return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000));
+  return Math.max(0, Math.ceil((new Date(iso!).getTime() - Date.now()) / 86_400_000));
 }
 
 export function timeAgo(iso?: string | null) {
@@ -92,8 +92,8 @@ export function slugify(s: string) {
   return s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 }
 
-export function cx(...c: (string | false | null | undefined)[]) {
-  return c.filter(Boolean).join(" ");
+export function cx(...c: (string | number | boolean | null | undefined)[]) {
+  return c.filter((x): x is string => typeof x === "string" && x.length > 0).join(" ");
 }
 
 /** Visible sections in their saved order (falls back to all sections). */

@@ -143,7 +143,7 @@ export default function RsvpManager({ invitation: inv }: { invitation: Invitatio
                   {rows.map((g) => {
                     const { status, r } = statusOf(g, ev);
                     const heads = status === "accepted" ? `${r!.heads} / ${g.heads}` : status === "declined" ? `0 / ${g.heads}` : `– / ${g.heads}`;
-                    const isNew = flash[g.id] && Date.now() - flash[g.id] < 4000;
+                    const isNew = !!flash[g.id] && Date.now() - flash[g.id] < 4000;
                     return (
                       <tr key={g.id} className={cx("border-b border-line transition-colors last:border-0", isNew && "bg-emerald-400/10")}>
                         <td className="px-4 py-3">
