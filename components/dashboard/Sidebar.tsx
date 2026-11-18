@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { setCurrentInvitation } from "@/lib/current-invitation";
 import { cx, daysUntil, formatShortDate } from "@/lib/utils";
 import Logo from "@/components/Logo";
+import MobileNav from "./MobileNav";
 
 const groups: { title: string; items: { href: string; label: string; soon?: boolean }[] }[] = [
   { title: "Invitation", items: [
@@ -41,11 +42,42 @@ export default function Sidebar({ couple, firstEvent, invitations, currentId, is
   }
 
   return (
-    <aside className="flex flex-wrap items-center gap-4 border-b border-line bg-canvas px-4 py-3 md:sticky md:top-0 md:h-screen md:flex-col md:flex-nowrap md:items-stretch md:overflow-y-auto md:border-b-0 md:border-r md:px-3.5 md:py-5">
+    <>
+      <MobileNav
+        home="/dashboard"
+        isActive={(href) => path === href}
+        chip={days !== null ? <span className="flex items-center gap-1.5 border border-line px-2 py-1 text-[0.6rem] uppercase tracking-[0.14em] text-muted"><b className="font-display text-base font-light text-white">{days}</b> days</span> : null}
+        tabs={[
+          { href: "/dashboard", label: "Home", icon: "home" },
+          { href: "/dashboard/invitation", label: "Edit", icon: "edit" },
+          { href: "/dashboard/guests/add", label: "Add", icon: "plus" },
+          { href: "/dashboard/guests/links", label: "Guests", icon: "guests" },
+          { href: "/dashboard/guests/rsvp", label: "RSVPs", icon: "rsvp" },
+        ]}
+        groups={groups}
+        top={invitations.length > 1 ? (
+          <label className="label w-full" htmlFor="current-inv-m">Working on
+            <select id="current-inv-m" className="field normal-case tracking-normal" value={currentId ?? ""}
+              onChange={(e) => { setCurrentInvitation(e.target.value); router.refresh(); }}>
+              {invitations.map((i) => <option key={i.id} value={i.id}>{i.title}</option>)}
+            </select>
+          </label>
+        ) : null}
+        bottom={
+          <div className="flex flex-col gap-3">
+            {isAdmin && <Link href="/admin" className="btn w-full">Admin panel →</Link>}
+            <div className="flex items-center gap-3 text-sm">
+              <span className="min-w-0 flex-1 truncate text-muted">{couple}</span>
+              <button type="button" onClick={signOut} className="btn">Sign out</button>
+            </div>
+          </div>
+        }
+      />
+    <aside className="hidden border-r border-line bg-canvas px-3.5 py-5 md:sticky md:top-0 md:flex md:h-screen md:flex-col md:gap-4 md:overflow-y-auto">
       <Logo href="/dashboard" size={28} />
 
       {days !== null && (
-        <div className="ml-auto flex items-center gap-3 border border-line px-3 py-2 md:ml-0">
+        <div className="flex items-center gap-3 border border-line px-3 py-2">
           <b className="font-display text-2xl font-light tabular-nums text-white">{days}</b>
           <span className="text-[0.6rem] uppercase leading-snug tracking-[0.18em] text-muted">
             Days until<br />{formatShortDate(firstEvent?.starts_at)}
@@ -63,7 +95,7 @@ export default function Sidebar({ couple, firstEvent, invitations, currentId, is
       )}
 
       {groups.map((g) => (
-        <nav key={g.title} className="hidden flex-col md:flex" aria-label={g.title}>
+        <nav key={g.title} className="flex flex-col" aria-label={g.title}>
           <h4 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.24em] text-muted">{g.title}</h4>
           {g.items.map((it) =>
             it.soon ? (
@@ -81,25 +113,17 @@ export default function Sidebar({ couple, firstEvent, invitations, currentId, is
         </nav>
       ))}
 
-      {/* Phone navigation */}
-      <nav className="flex w-full gap-1.5 overflow-x-auto md:hidden" aria-label="Dashboard">
-        {groups.flatMap((g) => g.items).filter((i) => !i.soon).map((it) => (
-          <Link key={it.href} href={it.href}
-            className={cx("whitespace-nowrap px-3 py-1.5 text-xs uppercase tracking-[0.14em]", path === it.href ? "bg-white text-black" : "text-muted")}>
-            {it.label}
-          </Link>
-        ))}
-      </nav>
 
       {isAdmin && (
         <Link href="/admin" className="border border-white/30 px-2.5 py-2 text-center text-[0.62rem] uppercase tracking-[0.24em] text-white hover:border-white">Admin panel →</Link>
       )}
 
-      <div className="mt-auto hidden items-center gap-2.5 border-t border-line pt-3.5 text-sm md:flex">
+      <div className="mt-auto flex items-center gap-2.5 border-t border-line pt-3.5 text-sm">
         <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/30 text-xs">{couple.charAt(0).toUpperCase()}</div>
         <div className="min-w-0 flex-1 truncate">{couple}</div>
         <button type="button" onClick={signOut} className="text-[0.6rem] uppercase tracking-[0.2em] text-muted hover:text-white">Sign out</button>
       </div>
     </aside>
+    </>
   );
 }

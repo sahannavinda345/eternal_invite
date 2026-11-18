@@ -8,12 +8,16 @@
   body { @apply bg-canvas text-brand-ink font-sans antialiased; }
   h1, h2, h3 { text-wrap: balance; }
   :focus-visible { outline: 1px solid #ffffff; outline-offset: 3px; }
+  html { -webkit-text-size-adjust: 100%; }
+  /* Phones: 16px text in fields stops iPhone Safari zooming in when you tap one */
+  @media (max-width: 767px) { input, select, textarea { font-size: 16px !important; } }
   ::selection { background: #ffffff; color: #0a0a0a; }
 }
 
 @layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-none border border-white/30 bg-transparent px-5 py-2.5 text-[0.68rem] uppercase tracking-[0.22em] text-white/80 transition hover:border-white hover:text-white disabled:cursor-not-allowed disabled:opacity-40; }
-  .btn-primary { @apply btn border-white bg-white text-black hover:bg-white/85 hover:text-black; }
+  .btn-base { @apply inline-flex min-h-[40px] items-center justify-center gap-2 whitespace-nowrap rounded-none border px-5 py-2.5 text-[0.68rem] uppercase tracking-[0.22em] transition disabled:cursor-not-allowed disabled:opacity-40; }
+  .btn { @apply btn-base border-white/30 bg-transparent text-white/80 hover:border-white hover:text-white; }
+  .btn-primary { @apply btn-base border-white bg-white text-black hover:bg-white/85; }
   .card { @apply rounded-sm border border-line bg-surface; }
   .field { @apply w-full min-w-0 rounded-none border border-line bg-canvas px-3 py-2 text-sm text-brand-ink outline-none placeholder:text-white/30 focus:border-white/60; }
   .label { @apply flex flex-col gap-1.5 text-[0.65rem] font-normal uppercase tracking-[0.2em] text-muted; }
@@ -76,6 +80,12 @@
 .curtain { transition: transform 2s cubic-bezier(.7,0,.2,1); }
 .curtains-open .curtain-left  { transform: translateX(-96%) scaleX(.55); }
 .curtains-open .curtain-right { transform: translateX(96%) scaleX(.55); }
+
+/* Horizontal chip rows that scroll on phones without a visible scrollbar */
+.scroll-row { overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.scroll-row::-webkit-scrollbar { display: none; }
+@keyframes ec-sheet { from { transform: translateY(100%); } to { transform: none; } }
+.anim-sheet { animation: ec-sheet .28s cubic-bezier(.2,.8,.2,1) both; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

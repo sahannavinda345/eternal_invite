@@ -12,14 +12,14 @@ const tabs = [
 export default function GuestTabs() {
   const path = usePathname();
   return (
-    <nav className="flex flex-wrap gap-1.5" aria-label="Guest management">
+    <nav className="scroll-row -mx-4 flex items-center gap-1.5 px-4 sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Guest management">
       {tabs.map((t) => (
         <Link key={t.href} href={t.href}
-          className={cx("rounded-sm px-3.5 py-2 text-sm", path === t.href ? "bg-brand font-medium text-black" : "text-muted hover:bg-white hover:text-brand-ink")}>
+          className={cx("whitespace-nowrap rounded-sm px-3.5 py-2 text-sm", path === t.href ? "bg-brand font-medium text-black" : "text-muted hover:bg-white/5 hover:text-white")}>
           {t.label}
         </Link>
       ))}
-      <span className="rounded-sm px-3.5 py-2 text-sm text-muted/60">Table arrangement · soon</span>
+      <span className="whitespace-nowrap rounded-sm px-3.5 py-2 text-sm text-muted/60">Table arrangement · soon</span>
     </nav>
   );
 }

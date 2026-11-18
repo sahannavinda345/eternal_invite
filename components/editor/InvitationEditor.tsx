@@ -52,7 +52,18 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
   const [openId, setOpenId] = useState<SectionId | "settings" | "music" | "intro" | null>("hero");
   const [uploading, setUploading] = useState<string | null>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [showPhone, setShowPhone] = useState(false); // phones: toggle preview
+  const [showPhone, setShowPhone] = useState(false); // phones: full-screen preview
+  const [phoneScale, setPhoneScale] = useState(1);
+  useEffect(() => {
+    const fit = () => setPhoneScale(Math.min(1, (window.innerHeight - 150) / 620, (window.innerWidth - 32) / 300));
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
+  useEffect(() => {
+    document.body.style.overflow = showPhone ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showPhone]);
   const savedJson = useRef(JSON.stringify(hist.draft));
 
   /* ---------- editing + undo/redo ---------- */
@@ -402,6 +413,36 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]">
+      {/* ---------- phones & tablets: sticky action bar ---------- */}
+      <div className="sticky top-[61px] z-20 -mx-4 -mt-2 flex items-center gap-1.5 border-b border-line bg-canvas/95 px-4 py-2 backdrop-blur sm:-mx-8 sm:px-8 md:top-0 lg:hidden">
+        <p className={cx("min-w-0 flex-1 truncate text-[0.6rem] uppercase tracking-[0.16em]", status === "error" ? "text-red-300" : status === "saved" ? "text-emerald-300" : "text-muted")} aria-live="polite">
+          {status === "saved" ? "Saved" : statusText}
+        </p>
+        <button type="button" className="btn min-h-[36px] px-3 py-1.5" onClick={undo} disabled={!past.length} aria-label="Undo">↶</button>
+        <button type="button" className="btn min-h-[36px] px-3 py-1.5" onClick={redo} disabled={!future.length} aria-label="Redo">↷</button>
+        <button type="button" className="btn-primary min-h-[36px] px-4 py-1.5" onClick={() => setShowPhone(true)}>Preview</button>
+      </div>
+
+      {/* ---------- phones & tablets: full-screen preview ---------- */}
+      {showPhone && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center bg-black/95 px-4 lg:hidden" role="dialog" aria-label="Invitation preview"
+          style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top, 0px))", paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}>
+          <div className="flex w-full max-w-sm items-center justify-between py-2">
+            <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted">Live preview · tap and scroll</span>
+            <button type="button" className="grid h-10 w-10 place-items-center text-2xl text-white" onClick={() => setShowPhone(false)} aria-label="Close preview">×</button>
+          </div>
+          <div className="flex min-h-0 flex-1 items-center justify-center">
+            <PhonePreview invitation={draft} scale={phoneScale} />
+          </div>
+          <div className="grid w-full max-w-sm grid-cols-2 gap-2 py-2">
+            <a className="btn" href={`/i/${draft.slug}`} target="_blank" rel="noopener">Open full ↗</a>
+            <button type="button" className={draft.published ? "btn" : "btn-primary"} onClick={() => update({ published: !draft.published })}>
+              {draft.published ? "Unpublish" : "Publish"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ---------- left: controls ---------- */}
       <div className="flex min-w-0 flex-col gap-4">
         <div className="card grid gap-3 p-4 sm:grid-cols-2">
@@ -520,25 +561,30 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
           )}
         </div>
 
-        {uploading && <p className="bg-white/5 p-3 text-sm text-white/80" aria-live="polite">{uploading}</p>}
+        <div className="card flex flex-col gap-3 p-4 lg:hidden">
+          <p className="text-xs text-muted">{draft.published ? <>Live at <span className="break-all text-white/80">{invitationLink(draft.slug)}</span></> : "Draft. Only you can see it until you publish."}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button type="button" className="btn" onClick={() => setShowPhone(true)}>Preview</button>
+            <button type="button" className={draft.published ? "btn" : "btn-primary"} onClick={() => update({ published: !draft.published })}>{draft.published ? "Unpublish" : "Publish"}</button>
+          </div>
+        </div>
+
+        {uploading && <p className="sticky bottom-20 z-10 bg-surface p-3 text-sm text-white/80 shadow-lg md:static" aria-live="polite">{uploading}</p>}
         {error && <p className="bg-red-400/10 p-3 text-sm text-red-300">{error}</p>}
       </div>
 
       {/* ---------- right: live phone preview ---------- */}
-      <div className="lg:sticky lg:top-5 lg:self-start">
+      <div className="hidden lg:sticky lg:top-5 lg:block lg:self-start">
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center gap-1.5">
             <button type="button" className="btn px-3" onClick={undo} disabled={!past.length} aria-label="Undo" title="Undo (Ctrl+Z)">↶</button>
             <button type="button" className="btn px-3" onClick={redo} disabled={!future.length} aria-label="Redo" title="Redo (Ctrl+Shift+Z)">↷</button>
             <a className="btn px-3" href={`/i/${draft.slug}`} target="_blank" rel="noopener" title="Open full preview">Open ↗</a>
-            <button type="button" className="btn px-3 lg:hidden" onClick={() => setShowPhone((v) => !v)}>{showPhone ? "Hide preview" : "Show preview"}</button>
           </div>
           <p className={cx("text-[0.62rem] uppercase tracking-[0.2em]", status === "error" ? "text-red-300" : status === "saved" ? "text-emerald-300" : "text-muted")} aria-live="polite">
             {statusText}
           </p>
-          <div className={cx(showPhone ? "block" : "hidden", "lg:block")}>
-            <PhonePreview invitation={draft} />
-          </div>
+          <PhonePreview invitation={draft} />
           <button type="button" className={cx(draft.published ? "btn" : "btn-primary", "w-[300px]")}
             onClick={() => update({ published: !draft.published })}>
             {draft.published ? "Unpublish" : "Publish"}

@@ -40,9 +40,9 @@ export default async function MyInvitationsPage() {
                 <p className="text-sm text-muted">{inv.partner1} &amp; {inv.partner2}</p>
                 <p className="mt-1 text-xs text-muted">{formatShortDate(first?.starts_at)} · {first?.venue || "No venue yet"}</p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-3">
                 <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 border border-line bg-canvas p-2 pl-3">
-                  <span className="min-w-0 flex-1 truncate text-sm">{link}</span>
+                  <span className="w-full min-w-0 truncate text-sm sm:w-auto sm:flex-1">{link.replace(/^https?:\/\//, "")}</span>
                   <CopyButton text={link} label="Copy" />
                   <GoTo id={inv.id} href="/dashboard/invitation">Customize</GoTo>
                 </div>

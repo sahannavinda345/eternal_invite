@@ -88,20 +88,52 @@ export default function GuestLinks({ invitation: inv }: { invitation: Invitation
       )}
 
       <div className="card">
-        <div className="flex flex-wrap items-center gap-2 border-b border-line p-4">
-          {[{ key: "all", label: "All events" }, ...inv.events].map((e) => (
-            <button key={e.key} type="button" onClick={() => setFilter(e.key)}
-              className={filter === e.key ? "rounded-sm bg-brand-soft px-3 py-1 text-sm font-medium text-brand" : "rounded-sm px-3 py-1 text-sm text-muted"}>
-              {e.label}
-            </button>
-          ))}
-          <input aria-label="Search guests" className="field ml-auto max-w-xs" placeholder="Search guests…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center">
+          <div className="scroll-row flex gap-2">
+            {[{ key: "all", label: "All events" }, ...inv.events].map((e) => (
+              <button key={e.key} type="button" onClick={() => setFilter(e.key)}
+                className={filter === e.key ? "shrink-0 rounded-sm bg-brand-soft px-3 py-1.5 text-sm font-medium text-brand" : "shrink-0 rounded-sm px-3 py-1.5 text-sm text-muted"}>
+                {e.label}
+              </button>
+            ))}
+          </div>
+          <input aria-label="Search guests" className="field sm:ml-auto sm:max-w-xs" placeholder="Search guests…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         {error ? <p className="p-6 text-sm text-red-300">{error}</p>
           : !guests ? <p className="p-6 text-center text-muted">Loading guests…</p>
           : !shown.length ? <p className="p-6 text-center text-muted">No guests here yet.</p>
           : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Phones: a card per guest with big buttons */}
+            <ul className="md:hidden">
+              {shown.map((g) => {
+                const link = guestLink(inv.slug, g.token);
+                return (
+                  <li key={g.id} className="flex flex-col gap-2.5 border-b border-line px-4 py-4 last:border-0">
+                    <div>
+                      <p className="font-medium text-white">{g.name}</p>
+                      <p className="text-xs text-muted">{g.grp} · {g.side} · {g.heads} seat{g.heads > 1 ? "s" : ""}{g.phone ? ` · +94 ${g.phone}` : ""}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {inv.events.filter((e) => g.events.includes(e.key)).map((e) => (
+                        <span key={e.key} className="rounded-sm border border-line px-2 py-0.5 text-xs text-muted">{e.label}</span>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <CopyButton text={link} label="Copy link" />
+                      {g.phone ? (
+                        <a className={sent[g.id] ? "btn" : "btn-primary"} target="_blank" rel="noopener"
+                          href={`https://wa.me/94${g.phone}?text=${encodeURIComponent(fill(g))}`}
+                          onClick={() => setSent((s) => ({ ...s, [g.id]: true }))}>
+                          {sent[g.id] ? "Opened ✓" : "WhatsApp"}
+                        </a>
+                      ) : <span className="grid place-items-center text-xs text-muted">No number</span>}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="hidden overflow-x-auto md:block">
               <table className="w-full min-w-[760px] text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-[0.68rem] uppercase tracking-[0.14em] text-muted">
@@ -142,6 +174,7 @@ export default function GuestLinks({ invitation: inv }: { invitation: Invitation
                 </tbody>
               </table>
             </div>
+            </>
           )}
       </div>
     </div>

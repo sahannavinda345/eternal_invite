@@ -37,11 +37,11 @@ export default async function AdminOverview() {
       <PageHead eyebrow="Admin" title="Overview" sub="Every couple, plan and invitation on Eternal Chapter."
         action={<Link href="/admin/couples/new" className="btn-primary">+ Add couple</Link>} />
 
-      <section className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid grid-cols-2 gap-2.5 sm:gap-3.5 lg:grid-cols-4">
         {stats.map(([l, v, s]) => (
           <div key={l} className="card flex flex-col gap-1 p-4">
             <p className="text-[0.62rem] uppercase tracking-[0.24em] text-muted">{l}</p>
-            <b className="font-display text-3xl font-light tabular-nums text-white">{v}</b>
+            <b className="truncate font-display text-2xl font-light tabular-nums text-white sm:text-3xl">{v}</b>
             <p className="text-xs text-muted">{s}</p>
           </div>
         ))}

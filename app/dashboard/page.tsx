@@ -114,7 +114,7 @@ export default async function Overview() {
         <div className="h-px bg-line">
           <div className="h-px bg-white transition-all" style={{ width: `${(done / steps.length) * 100}%` }} />
         </div>
-        <div className="grid gap-2 sm:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
           {steps.map((s, n) => (
             <Link key={s.label} href={s.href}
               className={s.done ? "flex flex-col items-center gap-2 border border-white/25 bg-white/[0.04] p-3 text-center text-xs text-white" : "flex flex-col items-center gap-2 border border-line p-3 text-center text-xs text-muted hover:border-white/30"}>
@@ -126,7 +126,7 @@ export default async function Overview() {
       </section>
 
       {/* ---------- stats ---------- */}
-      <section className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid grid-cols-2 gap-2.5 sm:gap-3.5 lg:grid-cols-4">
         {[
           ["Total guests", String(guests.length), `${invitedHeads} seats invited`],
           ["Page views", String(inv.views ?? 0), "guest link opens"],
@@ -135,7 +135,7 @@ export default async function Overview() {
         ].map(([l, v, s]) => (
           <div key={l} className="card flex flex-col gap-1 p-4">
             <p className="text-[0.62rem] uppercase tracking-[0.24em] text-muted">{l}</p>
-            <b className="font-display text-3xl font-light tabular-nums text-white">{v}</b>
+            <b className="font-display text-2xl font-light tabular-nums text-white sm:text-3xl">{v}</b>
             <p className="text-xs text-muted">{s}</p>
           </div>
         ))}

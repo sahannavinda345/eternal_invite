@@ -26,7 +26,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="grid min-h-screen md:grid-cols-[232px_minmax(0,1fr)]">
+    <div className="grid min-h-screen grid-cols-[minmax(0,1fr)] content-start md:grid-cols-[232px_minmax(0,1fr)] md:content-stretch">
       <Sidebar
         couple={invitation ? `${invitation.partner1} & ${invitation.partner2}` : profile?.couple_name || user.email || "Your account"}
         firstEvent={invitation?.events[0] ?? null}
@@ -34,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         currentId={invitation?.id ?? null}
         isAdmin={profile?.role === "admin"}
       />
-      <main className="min-w-0 px-4 pb-12 pt-6 sm:px-8">
+      <main className="min-w-0 px-4 pb-28 pt-5 sm:px-8 md:pb-12 md:pt-6">
         <div className="mx-auto flex max-w-6xl flex-col gap-6">{children}</div>
       </main>
     </div>

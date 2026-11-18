@@ -32,15 +32,39 @@ export default async function CouplesPage({ searchParams }: Props) {
       <PageHead eyebrow="Admin" title={`Couples (${profiles?.length ?? 0})`} sub="Click a couple to change their plan, templates, access or password."
         action={<Link href="/admin/couples/new" className="btn-primary">+ Add couple</Link>} />
 
-      <form className="flex flex-wrap gap-2" action="/admin/couples">
-        <input name="q" defaultValue={q} aria-label="Search couples" placeholder="Search by name, email or phone…" className="field max-w-sm bg-surface" />
+      <form className="grid grid-cols-[1fr_auto] gap-2 sm:flex sm:flex-wrap" action="/admin/couples">
+        <input name="q" defaultValue={q} aria-label="Search couples" placeholder="Search by name, email or phone…" className="field col-span-2 bg-surface sm:max-w-sm" />
         <select name="status" defaultValue={status} aria-label="Status" className="field w-auto bg-surface">
           <option value="all">All</option><option value="active">Active</option><option value="paused">Paused</option>
         </select>
         <button type="submit" className="btn">Search</button>
       </form>
 
-      <div className="card overflow-x-auto">
+      <ul className="card md:hidden">
+        {rows.map((c) => {
+          const paused = isPaused(c);
+          return (
+            <li key={c.id} className="border-b border-line last:border-0">
+              <Link href={`/admin/couples/${c.id}`} className="flex flex-col gap-1 px-4 py-3.5 active:bg-white/[0.03]">
+                <span className="flex items-center gap-2">
+                  <span className="min-w-0 flex-1 truncate text-white">{c.couple_name || "No name yet"}</span>
+                  <span className={paused ? "pill-declined" : "pill-accepted"}>{paused ? (c.status === "suspended" ? "Suspended" : "Expired") : "Active"}</span>
+                </span>
+                <span className="truncate text-xs text-muted">{c.email}</span>
+                <span className="flex flex-wrap gap-x-3 text-xs text-muted">
+                  <span>{c.plan_id ? planName[c.plan_id] ?? c.plan_id : "Custom"}</span>
+                  <span>{used[c.id] ?? 0}/{c.max_invitations} invitations</span>
+                  <span>{lkr(c.paid_amount)}</span>
+                  {c.expires_at && <span>until {c.expires_at}</span>}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+        {!rows.length && <li className="p-8 text-center text-muted">No couples match.</li>}
+      </ul>
+
+      <div className="card hidden overflow-x-auto md:block">
         <table className="w-full min-w-[820px] text-sm">
           <thead>
             <tr className="border-b border-line text-left text-[0.62rem] uppercase tracking-[0.18em] text-muted">
