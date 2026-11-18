@@ -172,6 +172,13 @@ Every design also supports a **couple photo** (opening screen and intro), a **ph
 
 Animations switch off automatically for guests who turn on "reduce motion" on their phone. The keyframes live in `app/globals.css` (look for `ec-`).
 
+## Table arrangement (`/dashboard/guests/tables`)
+
+Run `supabase/migrations/006_seating.sql` once. Then, for each event (Wedding, Homecoming…):
+- **Designer** – add round, banquet and head tables, chair rows and decor areas (stage, dance floor); drag them into place. Drag a guest from the list onto a chair: their whole party (e.g. ×3) fills the next free chairs. Drag a seated guest to another chair to move them, or back onto the guest list to unseat. Works with a finger on phones (use the ⋮⋮ handle).
+- **List** – the easiest way on a phone: each table shows its chairs, with a *Seat a guest…* picker.
+- **Publish** – guests who accepted see *Your table: Table 3* on their invitation. **Print** gives a clean seating chart (save as PDF from the print dialog).
+
 ## Going live
 
 1. Push this folder to a GitHub repository.
@@ -182,7 +189,6 @@ Animations switch off automatically for guests who turn on "reduce motion" on th
 
 - More designs (Kandyan, modern, Sinhala/Tamil versions)
 - Photo gallery and couple photos (Supabase Storage)
-- Table arrangement / seating planner
 - Payments + automatic account creation (a Sri Lankan payment gateway), replacing the manual *Add user* step
 - Video invitations (Remotion)
 - CSV export of RSVPs

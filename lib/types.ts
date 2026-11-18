@@ -91,6 +91,27 @@ export type GuestView = {
   heads: number;
   events: string[];
   rsvps: { event_key: string; status: RsvpStatus; heads: number; message: string | null }[];
+  /** The guest's table per event, from published seating plans. */
+  seats?: { event_key: string; table: string }[];
+};
+
+export type TableKind = "round" | "banquet" | "head" | "row" | "decor";
+
+export type SeatTable = {
+  id: string;
+  kind: TableKind;
+  label: string;
+  x: number; // centre, in canvas units
+  y: number;
+  seats: number; // 0 for decor areas
+  w?: number; // decor areas
+  h?: number;
+};
+
+export type SeatingLayout = {
+  tables: SeatTable[];
+  /** "<tableId>:<seatIndex>" → guest id */
+  assignments: Record<string, string>;
 };
 
 /** Saved section lists from before a section existed get the new ones added at their default place. */

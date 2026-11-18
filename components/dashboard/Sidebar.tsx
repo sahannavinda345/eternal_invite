@@ -18,7 +18,7 @@ const groups: { title: string; items: { href: string; label: string; soon?: bool
     { href: "/dashboard/guests/add", label: "Add guests" },
     { href: "/dashboard/guests/links", label: "Guest list & links" },
     { href: "/dashboard/guests/rsvp", label: "RSVP management" },
-    { href: "#", label: "Table arrangement", soon: true },
+    { href: "/dashboard/guests/tables", label: "Table arrangement" },
     { href: "#", label: "Guest gallery", soon: true },
   ] },
 ];

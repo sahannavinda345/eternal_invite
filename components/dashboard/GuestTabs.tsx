@@ -7,6 +7,7 @@ const tabs = [
   { href: "/dashboard/guests/add", label: "Add guests" },
   { href: "/dashboard/guests/links", label: "Guest list & links" },
   { href: "/dashboard/guests/rsvp", label: "RSVP management" },
+  { href: "/dashboard/guests/tables", label: "Table arrangement" },
 ];
 
 export default function GuestTabs() {
@@ -19,7 +20,6 @@ export default function GuestTabs() {
           {t.label}
         </Link>
       ))}
-      <span className="whitespace-nowrap rounded-sm px-3.5 py-2 text-sm text-muted/60">Table arrangement · soon</span>
     </nav>
   );
 }

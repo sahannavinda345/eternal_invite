@@ -60,6 +60,9 @@ export default function RsvpSection({ slug, token, guest, events, rsvpBy, demo =
                 <p className={t.muted}>
                   {d.status === "accepted" ? `Reply saved for ${d.heads} guest${d.heads > 1 ? "s" : ""}.` : "We'll miss you."}
                 </p>
+                {d.status === "accepted" && guest.seats?.find((x) => x.event_key === e.key) && (
+                  <p className={t.label}>Your table: {guest.seats.find((x) => x.event_key === e.key)!.table}</p>
+                )}
                 <button type="button" onClick={() => set(e.key, { saved: false })} className={t.ghostBtn}>Change reply</button>
               </div>
             ) : (

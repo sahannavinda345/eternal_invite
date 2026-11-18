@@ -91,3 +91,10 @@
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal-armed { opacity: 1 !important; transform: none !important; }
 }
+
+/* Seating chart print: only the printed chart shows */
+@media print {
+  @page { margin: 12mm; }
+  html, body { background: #fff !important; color: #000 !important; }
+  aside, header, nav, .print\:hidden { display: none !important; }
+}
