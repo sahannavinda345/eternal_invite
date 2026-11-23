@@ -122,12 +122,8 @@ app/
     guests/rsvp/page.tsx       RSVP management (live)
 components/
   designs/index.ts             List of designs shown in the template picker
-  designs/premium/             Royal Kandyan and Watercolour Story (+ parts.tsx: shared blocks)
-  designs/animated/            Animated designs: Kandyan Heritage, Chapel Doors, Velvet Night,
-                               Wax Seal, Crimson Curtain, Coastal Drive, Boarding Pass
-                               (ThemedSections.tsx = shared sections, ornaments.tsx = SVG art, Reveal.tsx = scroll fade-in)
-  designs/GoldenPoruwa.tsx     Maroon & gold design
-  designs/EternalNoir.tsx      Black & white house-style design
+  designs/story/               Story templates: Mughal Arch, Ivory Deckle, Grand Palace, Pampas Emboss
+                               (Story.tsx = shared scenes and text animation, art.tsx = SVG roses, pampas, seals, frames)
   editor/                      Live editor, phone preview, section toggles
   invitation/                  Countdown + guest RSVP form
   dashboard/                   Dashboard building blocks
@@ -144,37 +140,12 @@ Guests don't sign in. Each guest link has a private token (`?g=…`). The guest 
 
 ## Adding a new design
 
-1. Copy `components/designs/EternalNoir.tsx` to e.g. `components/designs/IvoryModern.tsx` and restyle it. Keep the `blocks` map so section order and show/hide keep working, and respect the `preview` prop.
+1. Copy one of `components/designs/story/*.tsx` (e.g. `PampasEmboss.tsx`) and restyle its cover, background, frame and colours. The shared scenes come from `story/Story.tsx`, so section order and show/hide keep working.
 2. Add it to the `DESIGNS` list in `components/designs/index.ts`. It then appears in the editor's template picker.
-
-## Premium templates (Royal Kandyan, Watercolour Story)
-
-Run `supabase/migrations/005_premium.sql` once. It adds the extra content these templates use and lets the media bucket hold videos up to 50 MB.
-
-What they show, all edited in the live editor:
-- **Intro video** – a short clip (vertical 9:16, 8–15 s, under 20 MB) that plays with sound after the guest taps *Open*, with a *Skip* button, then a burst of petals reveals the names. Make these clips per couple with an AI video tool from their photo (sold as a premium extra). Without a video, the petal burst plays straight away.
-- **Illustrated couple** – PNG with a transparent background, shown under the date.
-- **Parents** for each partner, a large date block, **love story timeline**, **then & now** childhood photos (polaroids), **scratch-to-reveal date** card (Watercolour Story), **how the day unfolds** schedule, **embedded Google map** of the venue, a closing *save the date* card, and a **floating menu bar** to jump between sections.
-
-## Animated designs
-
-| Design | Opening animation | While reading |
-| --- | --- | --- |
-| Kandyan Heritage | Spinning mandala, elephant procession, "Open invitation" slides away | Mandala blooms, petals fall, sections fade up |
-| Chapel Doors | Arched doors swing open with light behind | Twinkling sparkles, arched event cards |
-| Velvet Night | Glowing arch under fairy lights, "Step inside" | Lights brighten, fireflies drift, shimmering names |
-| Wax Seal | Ivory envelope with embossed flowers; tap the monogram seal – it cracks and the flap lifts | Soft ivory card style |
-| Crimson Curtain | Red velvet curtains with a pulsing "Tap to open" – they part to the sides | Swaying marigold garlands, gold on crimson |
-| Coastal Drive | "Save the date" over a palm-lined road, "Start the drive" | Scroll-driven: the road and palms roll by and the wedding car drives on as guests scroll |
-| Boarding Pass | "Preparing your journey" loading bar, then a boarding pass with the guest as passenger; "Board now" tears the stub and a plane takes off | Night sky with stars and clouds; a plane moves along the flight path as guests scroll |
-
-Every design also supports a **couple photo** (opening screen and intro), a **photo gallery** section (tap a photo to view it full screen; swipe or use arrow keys), and **background music** that starts when the guest taps the open button, with a floating play/pause button. Couples upload these in the editor; photos are resized in the browser before upload.
-
-Animations switch off automatically for guests who turn on "reduce motion" on their phone. The keyframes live in `app/globals.css` (look for `ec-`).
 
 ## Story templates (Mughal Arch, Ivory Deckle, Grand Palace, Pampas Emboss)
 
-Run `supabase/migrations/007_story.sql` once. These play like the reel-style video invitations: every part is a full-screen scene and its words write themselves in, letter by letter, as the guest scrolls.
+Run `supabase/migrations/007_story.sql` once, then `008_story_only.sql` (moves every invitation and plan from the old templates to the closest Story template). These play like the reel-style video invitations: every part is a full-screen scene and its words write themselves in, letter by letter, as the guest scrolls.
 
 | Template | Opening | Scenes |
 | --- | --- | --- |
