@@ -122,7 +122,7 @@ app/
     guests/rsvp/page.tsx       RSVP management (live)
 components/
   designs/index.ts             List of designs shown in the template picker
-  designs/story/               Story templates: Mughal Arch, Ivory Deckle, Grand Palace, Pampas Emboss
+  designs/story/               Pampas Emboss template (+ Story.tsx shared scenes, Envelope.tsx, art.tsx)
                                (Story.tsx = shared scenes and text animation, art.tsx = SVG roses, pampas, seals, frames)
   editor/                      Live editor, phone preview, section toggles
   invitation/                  Countdown + guest RSVP form
@@ -143,20 +143,11 @@ Guests don't sign in. Each guest link has a private token (`?g=…`). The guest 
 1. Copy one of `components/designs/story/*.tsx` (e.g. `PampasEmboss.tsx`) and restyle its cover, background, frame and colours. The shared scenes come from `story/Story.tsx`, so section order and show/hide keep working.
 2. Add it to the `DESIGNS` list in `components/designs/index.ts`. It then appears in the editor's template picker.
 
-## Story templates (Mughal Arch, Ivory Deckle, Grand Palace, Pampas Emboss)
+## Template: Pampas Emboss
 
-Run `supabase/migrations/007_story.sql` once, then `008_story_only.sql` (moves every invitation and plan from the old templates to the closest Story template). These play like the reel-style video invitations: every part is a full-screen scene and its words write themselves in, letter by letter, as the guest scrolls.
+Run `supabase/migrations/007_story.sql`, `008_story_only.sql` and `009_pampas_only.sql` once, in that order.
 
-| Template | Opening | Scenes |
-| --- | --- | --- |
-| Mughal Arch | Couple photo with a large monogram; tap and you walk into the hall | Maroon onion-arch panel with gold lines, over a palace of roses, hanging jasmine strings and candles |
-| Ivory Deckle | Embossed maroon envelope with a gold wax seal; the flap folds back | Torn-edge ivory cards on embossed maroon; ends with a gold flower wreath around the names |
-| Grand Palace | Rose-covered palace doors swing open into the couple photo | Ivory arch panel between red drapes, rose-wrapped columns and lanterns |
-| Pampas Emboss | Embossed envelope flaps open to the four sides | Ivory paper, embossed pampas grass growing in, soft window light drifting; ends on maroon with a monogram frame that draws itself |
-
-Every Story template has: families line and parents, names, couple photo in an arch with the date, a **Save the Date calendar with a hand-drawn heart** around the day, a countdown, one scene per event (date, venue, time, Directions), the day's timeline, love story, gallery, map and RSVP.
-
-**For the most realistic look** (like the sample videos), upload a **Background artwork** in the editor (Couple section): a tall 9:16 image of a floral palace hall made with an AI image tool. Mughal Arch and Grand Palace use it behind every scene; without one, they draw their own palace.
+Pampas Emboss is currently the only template. It opens with an embossed burgundy envelope (`public/story/pampas-envelope.jpg`, cut along its folds in `components/designs/story/Envelope.tsx`). The side flaps swing open, then the top and bottom fold away. Inside, ivory paper with drifting window light, embossed pampas grass growing in, and text that writes itself in letter by letter (`story/Story.tsx`). It ends on maroon with a monogram frame that draws itself.
 
 ## Table arrangement (`/dashboard/guests/tables`)
 

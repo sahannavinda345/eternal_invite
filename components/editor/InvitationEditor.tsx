@@ -272,19 +272,6 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
                 </div>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-              {draft.backdrop ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={draft.backdrop} alt="Background artwork" className="h-20 w-12 border border-line object-cover" />
-              ) : <div className="grid h-20 w-12 place-items-center border border-dashed border-line text-center text-[0.55rem] text-muted">None</div>}
-              <div className="flex flex-col gap-2">
-                <span className="text-[0.65rem] uppercase tracking-[0.2em] text-muted">Background artwork · Mughal Arch &amp; Grand Palace (tall 9:16 image, e.g. a floral palace hall)</span>
-                <div className="flex flex-wrap gap-2">
-                  {picker("backdrop-upload", draft.backdrop ? "Change background" : "Upload background", "image/*", (f) => uploadInto(f, "photo", (url) => update({ backdrop: url }), draft.backdrop))}
-                  {draft.backdrop && <button type="button" className="btn" onClick={() => { const u = draft.backdrop!; update({ backdrop: null }); deleteMedia(u); }}>Remove</button>}
-                </div>
-              </div>
-            </div>
             <label className="label sm:col-span-2" htmlFor="fam">Families line
               <textarea id="fam" className="field min-h-[70px] normal-case tracking-normal" value={draft.families ?? ""}
                 placeholder="Mr. & Mrs. Sunil Jayawardena and Mr. & Mrs. Ranjith Perera request the pleasure of your company…"

@@ -9,7 +9,7 @@ create table if not exists public.invitations (
   id           uuid primary key default gen_random_uuid(),
   owner_id     uuid not null references auth.users(id) on delete cascade,
   slug         text not null unique check (slug ~ '^[a-z0-9-]{3,60}$'),
-  design       text not null default 'mughal-arch',
+  design       text not null default 'pampas-emboss',
   partner1     text not null,
   partner2     text not null,
   families     text,
