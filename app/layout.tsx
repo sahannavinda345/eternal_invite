@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${body.variable} ${script.variable} ${serif.variable} ${caps.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${body.variable} ${script.variable} ${serif.variable} ${caps.variable}`}>
       <body>{children}</body>
     </html>
   );

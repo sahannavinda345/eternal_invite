@@ -55,14 +55,16 @@ export const SceneSize = createContext<string | null>(null);
 
 
 /** A full-screen part of the story. Its animations wait until it scrolls into view. */
-export function Scene({ children, id, preview, className = "", style }: { children: React.ReactNode; id?: string; preview?: boolean; className?: string; style?: React.CSSProperties }) {
+export function Scene({ children, id, preview, className = "", style, onIn }: { children: React.ReactNode; id?: string; preview?: boolean; className?: string; style?: React.CSSProperties; onIn?: () => void }) {
   const ref = useRef<HTMLElement>(null);
   const size = useContext(SceneSize);
+  const onInRef = useRef(onIn);
+  onInRef.current = onIn;
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     if (typeof IntersectionObserver === "undefined") { el.classList.add("is-in"); return; }
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { el.classList.add("is-in"); io.disconnect(); } }, { threshold: 0.3 });
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { el.classList.add("is-in"); onInRef.current?.(); io.disconnect(); } }, { threshold: 0.3 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -149,12 +151,14 @@ type Props = {
   /** Wraps each scene's content (arch panel, deckled card, …). */
   Frame: (p: { children: React.ReactNode; kind: string }) => React.ReactNode;
   /** The last scene (wreath, monogram…). */
-  closing: React.ReactNode;
+  closing?: React.ReactNode;
+  /** Sections the template lays out itself. */
+  skip?: string[];
 };
 
 const mapsUrl = (q: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 
-export function StoryScenes({ inv, guest, token, preview, look: L, Frame, closing }: Props) {
+export function StoryScenes({ inv, guest, token, preview, look: L, Frame, closing, skip = [] }: Props) {
   const first = inv.events[0];
   const shown = guest ? inv.events.filter((e) => guest.events.includes(e.key)) : inv.events;
   const sections = visibleSections(inv.sections);
@@ -191,7 +195,7 @@ export function StoryScenes({ inv, guest, token, preview, look: L, Frame, closin
   };
 
   const scenes: { key: string; kind: string; id?: string; node: React.ReactNode }[] = [];
-  for (const s of sections) {
+  for (const s of sections.filter((x) => !skip.includes(x))) {
     if (s === "hero") {
       scenes.push({
         key: "invite", kind: "invite", id: "ec-home", node: (
@@ -353,7 +357,7 @@ export function StoryScenes({ inv, guest, token, preview, look: L, Frame, closin
           {Frame({ children: s.node, kind: s.kind })}
         </Scene>
       ))}
-      <Scene preview={preview}>{closing}</Scene>
+      {closing && <Scene preview={preview}>{closing}</Scene>}
     </>
   );
 }

@@ -184,66 +184,99 @@ const FOLDS = {
   bottom: "0,1308 20,1290 352,700 383,700 736,1290 736,1308",
 };
 
-function PhotoFlap({ src, points, opening, delay, dur }: { src: string; points: string; opening: boolean; delay: number; dur: number }) {
-  const id = useId().replace(/:/g, "");
+/** Same id on the server and in the browser (useId can differ when the design is loaded lazily). */
+const stableId = (s: string) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return `pf${(h >>> 0).toString(36)}`; };
+
+function PhotoFlap({ src, points, opening, delay, dur, w = IW, h = IH }: { src: string; points: string; opening: boolean; delay: number; dur: number; w?: number; h?: number }) {
+  const id = stableId(points);
   return (
-    <svg viewBox={`0 0 ${IW} ${IH}`} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden="true">
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden="true">
       <defs>
         <clipPath id={`c${id}`}><polygon points={points} /></clipPath>
         <linearGradient id={`l${id}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ffd9dc" /><stop offset="1" stopColor="#ffd9dc" stopOpacity="0" /></linearGradient>
       </defs>
-      <image href={src} width={IW} height={IH} preserveAspectRatio="none" clipPath={`url(#c${id})`} />
+      <image href={src} width={w} height={h} preserveAspectRatio="none" clipPath={`url(#c${id})`} />
       {/* catches the light as it swings towards you */}
       <polygon points={points} fill={`url(#l${id})`} style={{ opacity: opening ? 0.24 : 0, transition: `opacity ${dur * 0.7}ms ease ${delay}ms` }} />
     </svg>
   );
 }
 
-export default function EmbossEnvelope({ opening, onOpen, preview, guestName, image }: {
+/** An envelope photo and where its folds are, in the photo's own pixels. */
+export type EnvelopeShape = { w: number; h: number; folds: { left: string; right: string; top: string; bottom: string }; centre: [number, number] };
+
+export default function EmbossEnvelope({ opening, onOpen, preview, guestName, image, shape, seal, light = "#f1d6d6" }: {
   opening: boolean; onOpen: () => void; preview?: boolean; guestName?: string | null;
-  /** Envelope photo (736 × 1308, folds as in FOLDS). Without it the envelope is drawn in code. */
+  /** Envelope photo (736 × 1308, folds as in FOLDS unless `shape` is given). Without it the envelope is drawn in code. */
   image?: string;
+  shape?: EnvelopeShape;
+  /** Wax seal image (transparent) placed where the flaps meet; it lifts off before the flaps open. */
+  seal?: string;
+  light?: string;
 }) {
   const ease = "cubic-bezier(.55,.05,.25,1)";
   if (image) {
+    const W0 = shape?.w ?? IW, H0 = shape?.h ?? IH, F = shape?.folds ?? FOLDS;
+    const wait = seal ? 450 : 0; // the seal lifts first
     const swing = (points: string, origin: string, open: string, delay: number, dur: number, z: number, shadow: string) => (
-      <span className="absolute inset-0" style={{ zIndex: z, transformOrigin: origin, transform: opening ? open : "none", transition: `transform ${dur}ms ${ease} ${delay}ms, opacity 500ms linear ${delay + dur - 500}ms`, opacity: opening ? 0 : 1, willChange: "transform", filter: shadow }}>
-        <PhotoFlap src={image} points={points} opening={opening} delay={delay} dur={dur} />
+      <span className="absolute inset-0" style={{ zIndex: z, transformOrigin: origin, transform: opening ? open : "none", transition: `transform ${dur}ms ${ease} ${delay + wait}ms, opacity 500ms linear ${delay + wait + dur - 500}ms`, opacity: opening ? 0 : 1, willChange: "transform", filter: shadow }}>
+        <PhotoFlap src={image} points={points} opening={opening} delay={delay + wait} dur={dur} w={W0} h={H0} />
       </span>
     );
+    const [cx, cy] = shape?.centre ?? [W0 / 2, H0 / 2];
     return (
       <button type="button" onClick={onOpen} aria-label="Open the invitation"
         className={`${preview ? "absolute" : "fixed"} inset-0 z-40 block overflow-hidden ${opening ? "pointer-events-none" : ""}`}
         style={{ perspective: "1600px" }}>
-        {/* the whole photo until the tap, so the slit between the flaps looks exactly like the picture */}
-        <svg viewBox={`0 0 ${IW} ${IH}`} preserveAspectRatio="xMidYMid slice" className={`absolute inset-0 h-full w-full ${opening ? "opacity-0" : ""}`} aria-hidden="true">
-          <image href={image} width={IW} height={IH} preserveAspectRatio="none" />
+        {/* the whole photo until the tap */}
+        <svg viewBox={`0 0 ${W0} ${H0}`} preserveAspectRatio="xMidYMid slice" className={`absolute inset-0 h-full w-full ${opening ? "opacity-0" : ""}`} aria-hidden="true">
+          <image href={image} width={W0} height={H0} preserveAspectRatio="none" />
         </svg>
-        {swing(FOLDS.top, "50% 0%", "rotateX(80deg)", 900, 1500, 1, "drop-shadow(0 3px 5px rgba(15,0,3,.3))")}
-        {swing(FOLDS.bottom, "50% 100%", "rotateX(-80deg)", 1000, 1500, 1, "none")}
-        {swing(FOLDS.left, "0% 50%", "rotateY(-80deg)", 0, 1900, 2, "drop-shadow(3px 2px 6px rgba(15,0,3,.45))")}
-        {swing(FOLDS.right, "100% 50%", "rotateY(80deg)", 80, 1900, 2, "drop-shadow(-3px 2px 6px rgba(15,0,3,.45))")}
-        <span className={`pointer-events-none absolute -inset-[30%] z-[3] opacity-[.04] blur-2xl transition-opacity ${opening ? "opacity-0" : ""}`}
+        {seal ? (
+          <>
+            {swing(F.left, "0% 50%", "rotateY(-80deg)", 500, 1700, 1, "drop-shadow(3px 2px 6px rgba(15,0,3,.45))")}
+            {swing(F.right, "100% 50%", "rotateY(80deg)", 560, 1700, 1, "drop-shadow(-3px 2px 6px rgba(15,0,3,.45))")}
+            {swing(F.bottom, "50% 100%", "rotateX(-80deg)", 250, 1500, 2, "drop-shadow(0 -3px 5px rgba(15,0,3,.35))")}
+            {swing(F.top, "50% 0%", "rotateX(80deg)", 0, 1500, 3, "drop-shadow(0 3px 6px rgba(15,0,3,.45))")}
+          </>
+        ) : (
+          <>
+            {swing(F.top, "50% 0%", "rotateX(80deg)", 900, 1500, 1, "drop-shadow(0 3px 5px rgba(15,0,3,.3))")}
+            {swing(F.bottom, "50% 100%", "rotateX(-80deg)", 1000, 1500, 1, "none")}
+            {swing(F.left, "0% 50%", "rotateY(-80deg)", 0, 1900, 2, "drop-shadow(3px 2px 6px rgba(15,0,3,.45))")}
+            {swing(F.right, "100% 50%", "rotateY(80deg)", 80, 1900, 2, "drop-shadow(-3px 2px 6px rgba(15,0,3,.45))")}
+          </>
+        )}
+        {seal && (
+          <svg viewBox={`0 0 ${W0} ${H0}`} preserveAspectRatio="xMidYMid slice" className="pointer-events-none absolute inset-0 z-[5] h-full w-full" aria-hidden="true">
+            <g style={{ transformOrigin: `${cx}px ${cy}px`, transform: opening ? "scale(1.35) rotate(-8deg)" : "none", opacity: opening ? 0 : 1, transition: "transform 600ms cubic-bezier(.3,1.6,.5,1), opacity 450ms ease 200ms" }}>
+              <g style={{ transformOrigin: `${cx}px ${cy}px`, animation: opening ? undefined : "st-seal 2.8s ease-in-out infinite" }}>
+                <ellipse cx={cx + 6} cy={cy + 14} rx={W0 * 0.14} ry={W0 * 0.13} fill="rgba(20,0,4,.45)" style={{ filter: "blur(10px)" }} />
+                <image href={seal} x={cx - W0 * 0.16} y={cy - W0 * 0.16} width={W0 * 0.32} height={W0 * 0.32} />
+              </g>
+            </g>
+          </svg>
+        )}
+        <span className={`pointer-events-none absolute -inset-[30%] z-[6] opacity-[.04] blur-2xl transition-opacity ${opening ? "opacity-0" : ""}`}
           style={{ background: "linear-gradient(115deg,transparent 40%,#fff 50%,transparent 60%)", animation: "st-light 9s ease-in-out infinite" }} />
-        <span className={`absolute inset-x-0 bottom-[6%] z-[4] flex flex-col items-center gap-1 text-center transition-opacity duration-300 ${opening ? "opacity-0" : ""}`}>
-          <span className="font-serif text-[0.58rem] uppercase tracking-[0.42em] text-[#f1d6d6]/70" style={{ animation: "ec-glow 2.6s ease-in-out infinite" }}>Tap to open</span>
-          {guestName && <span className="font-script text-2xl text-[#f1d6d6]/75">for {guestName}</span>}
+        <span className={`absolute inset-x-0 bottom-[6%] z-[7] flex flex-col items-center gap-1 text-center transition-opacity duration-300 ${opening ? "opacity-0" : ""}`}>
+          <span className="font-serif text-[0.58rem] uppercase tracking-[0.42em]" style={{ color: light, opacity: 0.75, animation: "ec-glow 2.6s ease-in-out infinite" }}>{seal ? "Tap the seal to open" : "Tap to open"}</span>
+          {guestName && <span className="font-script text-2xl" style={{ color: light, opacity: 0.8 }}>for {guestName}</span>}
         </span>
       </button>
     );
   }
+  // code-drawn envelope (used when no envelope photo is given)
   const flap = (clip: string, art: (a: Art) => void, shade: string, origin: string, open: string, delay: number, dur: number, z: number, shadow: string, edge?: string) => (
     <span className="absolute inset-0" style={{ zIndex: z, transformOrigin: origin, transform: opening ? open : "none", transition: `transform ${dur}ms ${ease} ${delay}ms, opacity 500ms linear ${delay + dur - 500}ms`, opacity: opening ? 0 : 1, willChange: "transform" }}>
       <span className="absolute inset-0" style={{ filter: shadow }}>
         <span className="absolute inset-0"><Flap draw={art} base={shade} clip={clip} /></span>
       </span>
-      {/* a fine light catch along the folded edge */}
       {edge && (
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
           <polyline points={edge} fill="none" stroke="#f3c3c8" strokeOpacity=".22" strokeWidth="1" vectorEffect="non-scaling-stroke" />
         </svg>
       )}
-      {/* catches the light as it swings towards you */}
       <span className="absolute inset-0 bg-gradient-to-br from-[#ffd9dc] to-transparent" style={{ clipPath: clip, opacity: opening ? 0.24 : 0, transition: `opacity ${dur * 0.7}ms ease ${delay}ms` }} />
     </span>
   );
