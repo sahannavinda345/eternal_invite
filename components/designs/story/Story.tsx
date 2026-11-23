@@ -4,7 +4,7 @@
  * its words write themselves in (letter by letter, soft blur) when the guest scrolls to it.
  * The four Story templates only supply the look: background, scene frame, colours, opening.
  */
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import Countdown from "@/components/invitation/Countdown";
 import Gallery from "@/components/invitation/Gallery";
 import RsvpSection from "@/components/invitation/RsvpSection";
@@ -50,9 +50,14 @@ export function Fade({ children, delay = 0, className = "", as: Tag = "div" }: {
 
 /* ---------------- scene ---------------- */
 
+/** Overrides the height of every scene, e.g. "min-h-full snap-start" when scenes play inside a framed window. */
+export const SceneSize = createContext<string | null>(null);
+
+
 /** A full-screen part of the story. Its animations wait until it scrolls into view. */
 export function Scene({ children, id, preview, className = "", style }: { children: React.ReactNode; id?: string; preview?: boolean; className?: string; style?: React.CSSProperties }) {
   const ref = useRef<HTMLElement>(null);
+  const size = useContext(SceneSize);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -62,7 +67,7 @@ export function Scene({ children, id, preview, className = "", style }: { childr
     return () => io.disconnect();
   }, []);
   return (
-    <section ref={ref} id={id} className={`st-scene relative flex scroll-mt-0 flex-col items-center justify-center ${preview ? "min-h-[620px]" : "min-h-[100svh]"} ${className}`} style={style}>
+    <section ref={ref} id={id} className={`st-scene relative flex scroll-mt-0 flex-col items-center justify-center ${size ?? (preview ? "min-h-[620px]" : "min-h-[100svh]")} ${className}`} style={style}>
       {children}
     </section>
   );
