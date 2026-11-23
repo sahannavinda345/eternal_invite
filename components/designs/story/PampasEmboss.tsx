@@ -1,6 +1,7 @@
 "use client";
 import type { DesignProps } from "../types";
 import { OrnateFrame, Pampas, embossMaroon, paperGrain } from "./art";
+import EmbossEnvelope from "./Envelope";
 import { Fade, Letters, Scene, StoryShell, dateParts, initialsOf, useOpening, type StoryLook } from "./Story";
 
 const PAPER = "#efe7dc";
@@ -16,21 +17,21 @@ const look: StoryLook = {
 function Light() {
   return (
     <div className="absolute inset-0" style={{ background: `${paperGrain}, linear-gradient(170deg,#f4eee6,${PAPER} 55%,#e5dace)` }}>
-      <span className="absolute -inset-[25%] opacity-[0.05] blur-[30px]"
-        style={{ background: "repeating-linear-gradient(115deg, transparent 0 90px, #4a3428 90px 140px, transparent 140px 175px, #4a3428 175px 186px, transparent 186px 360px)", animation: "st-light 16s ease-in-out infinite" }} />
-      <svg viewBox="0 0 200 200" className="absolute -right-[10%] -top-[6%] w-[70%] opacity-[0.10] blur-[6px]" style={{ animation: "ec-sway 9s ease-in-out infinite" }} aria-hidden="true">
+      <span className="absolute -inset-[25%] opacity-[0.15] blur-[26px]"
+        style={{ background: "repeating-linear-gradient(115deg, transparent 0 90px, #4a3428 90px 140px, transparent 140px 175px, #4a3428 175px 186px, transparent 186px 360px)", animation: "st-wave 11s ease-in-out infinite" }} />
+      <svg viewBox="0 0 200 200" className="absolute -right-[10%] -top-[6%] w-[70%] opacity-[0.14] blur-[6px]" style={{ animation: "st-leaves 7s ease-in-out infinite", transformOrigin: "80% 0%" }} aria-hidden="true">
         {[0, 1, 2, 3, 4, 5].map((i) => <path key={i} d="M0 0Q30-14 60 0Q30 14 0 0Z" fill="#3a281e" transform={`translate(${60 + i * 18} ${30 + i * 22}) rotate(${110 + i * 12})`} />)}
       </svg>
     </div>
   );
 }
 
-function Paper({ children, kind }: { children: React.ReactNode; kind?: string }) {
+function Paper({ children, kind, plain = false }: { children: React.ReactNode; kind?: string; plain?: boolean }) {
   const seed = { invite: 5, photo: 8, calendar: 12, event: 15, list: 19, rsvp: 22, wide: 25, text: 28 }[kind ?? ""] ?? 31;
   const right = seed % 2 === 0;
   return (
     <div className="relative flex w-full flex-1 flex-col items-center justify-center self-stretch px-8 py-16" style={{ color: look.ink }}>
-      <Pampas seed={seed} paper={PAPER} className={`pointer-events-none absolute bottom-0 h-[50%] w-auto opacity-90 ${right ? "-right-[6%] -scale-x-100" : "-left-[6%]"}`} />
+      {!plain && <Pampas seed={seed} paper={PAPER} className={`pointer-events-none absolute bottom-0 h-[50%] w-auto opacity-90 ${right ? "-right-[6%] -scale-x-100" : "-left-[6%]"}`} />}
       <div className="relative w-full max-w-[340px]">{children}</div>
     </div>
   );
@@ -38,39 +39,19 @@ function Paper({ children, kind }: { children: React.ReactNode; kind?: string })
 
 export default function PampasEmboss(p: DesignProps) {
   const { invitation: inv, guest, preview = false } = p;
-  const o = useOpening(inv, 1600);
+  const o = useOpening(inv, 2600);
   const d = dateParts(inv.events[0]?.starts_at);
   const opening = o.stage === "opening";
-  const flap = (clip: string, shade: string, out: string, delay: number) => (
-    <span className="absolute inset-0 transition-transform duration-[1200ms] ease-[cubic-bezier(.6,0,.3,1)]"
-      style={{ transform: opening ? out : "none", transitionDelay: `${delay}ms`, filter: "drop-shadow(0 0 8px rgba(0,0,0,.35))" }}>
-      <span className="absolute inset-0" style={{ background: embossMaroon(shade), clipPath: clip }} />
-    </span>
-  );
-
-  const cover = (
-    <button type="button" onClick={o.open} aria-label="Open the invitation"
-      className={`${preview ? "absolute" : "fixed"} inset-0 z-40 block overflow-hidden ${opening ? "pointer-events-none" : ""}`}>
-      {flap("polygon(0 100%,100% 100%,50% 50%)", "#4f0f1b", "translateY(100%)", 120)}
-      {flap("polygon(0 0,50% 50%,0 100%)", "#5c1421", "translateX(-100%)", 0)}
-      {flap("polygon(100% 0,50% 50%,100% 100%)", "#561320", "translateX(100%)", 0)}
-      {flap("polygon(0 0,100% 0,50% 52%)", "#621726", "translateY(-100%)", 220)}
-      <span className={`absolute inset-0 flex flex-col items-center justify-center gap-3 text-center text-[#f0dcd0] transition-opacity duration-300 ${opening ? "opacity-0" : ""}`}>
-        <span className="grid h-24 w-24 place-items-center rounded-full border border-[#e8c7c7]/50 font-script text-4xl" style={{ boxShadow: "inset 0 2px 6px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.08)" }}>{initialsOf(inv)}</span>
-        <span className="anim-rise font-serif text-[0.62rem] uppercase tracking-[0.36em]">Tap to open</span>
-        {guest && <span className="anim-rise font-serif text-sm italic text-[#e8c7c7]" style={{ animationDelay: ".2s" }}>for {guest.name}</span>}
-      </span>
-    </button>
-  );
+  const cover = <EmbossEnvelope opening={opening} onOpen={o.open} preview={preview} guestName={guest?.name} image="/story/pampas-envelope.jpg" />;
 
   const lead = (
     <Scene preview={preview}>
-      <Paper kind="lead">
+      <Paper kind="lead" plain>
         <div className="flex flex-col items-center gap-1 text-center">
-          <Letters text="YOU'RE" className="font-serif text-[0.9rem] tracking-[0.36em]" delay={0.6} step={0.09} />
-          <Letters text="cordially" className="font-script text-[3.2rem] leading-tight" delay={1} step={0.09} />
-          <Letters text="INVITED" className="font-serif text-[0.9rem] tracking-[0.36em]" delay={1.9} step={0.09} />
-          <Fade delay={2.7} className="mt-6 font-serif italic text-[#9a7f78]">dear {guest?.name ?? "friend"}</Fade>
+          <Letters text="YOU'RE" className="font-serif text-[1rem] tracking-[0.3em] text-[#8e4a55]" delay={2.4} step={0.1} />
+          <Letters text="cordially" className="-my-1 font-script text-[3.4rem] leading-tight text-[#7d716c]" delay={2.8} step={0.1} />
+          <Letters text="INVITED" className="font-serif text-[1rem] tracking-[0.3em] text-[#8e4a55]" delay={3.7} step={0.1} />
+          <Fade delay={4.6} className="mt-6 font-serif italic text-[#9a7f78]">dear {guest?.name ?? "friend"}</Fade>
         </div>
       </Paper>
     </Scene>
