@@ -41,7 +41,7 @@ for y in range(h):
         if seen[y * w + x]:
             mp[x, y] = 255
 # close small holes (sparkles, petals) and make each row solid between its first and last pixel
-mask = mask.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.MinFilter(9))
+mask = mask.filter(ImageFilter.MaxFilter(9 if w < 1000 else 17)).filter(ImageFilter.MinFilter(9 if w < 1000 else 17))
 mp = mask.load()
 edges = {}
 for y in range(h):
@@ -54,7 +54,7 @@ def med(v):
     v = sorted(v); return v[len(v) // 2]
 smooth = {}
 for y in rows:
-    near = [edges[k] for k in range(y - 24, y + 25) if k in edges]
+    near = [edges[k] for k in range(y - h // 50, y + h // 50 + 1) if k in edges]
     l, r = med([a for a, _ in near]), med([b for _, b in near])
     smooth[y] = (max(l, edges[y][0]), min(r, edges[y][1]))
 mask = Image.new("L", (w, h), 0); mp = mask.load()
