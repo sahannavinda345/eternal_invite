@@ -101,6 +101,7 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
         published: draft.published,
         cover_photo: draft.cover_photo || null, music_url: draft.music_url || null, gallery: draft.gallery ?? [],
         intro_video: draft.intro_video || null, illustration: draft.illustration || null,
+        ...(draft.backdrop !== undefined ? { backdrop: draft.backdrop || null } : {}),
         partner1_parents: draft.partner1_parents || null, partner2_parents: draft.partner2_parents || null,
         timeline: draft.timeline ?? [], schedule: draft.schedule ?? [], polaroids: draft.polaroids ?? {},
       }).eq("id", draft.id);
@@ -268,6 +269,19 @@ export default function InvitationEditor({ initial, invitations, allowedDesigns 
                 <div className="flex flex-wrap gap-2">
                   {picker("illus-upload", draft.illustration ? "Change art" : "Upload art", "image/png,image/webp,image/jpeg", (f) => uploadInto(f, "png", (url) => update({ illustration: url }), draft.illustration))}
                   {draft.illustration && <button type="button" className="btn" onClick={() => { const u = draft.illustration!; update({ illustration: null }); deleteMedia(u); }}>Remove</button>}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+              {draft.backdrop ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={draft.backdrop} alt="Background artwork" className="h-20 w-12 border border-line object-cover" />
+              ) : <div className="grid h-20 w-12 place-items-center border border-dashed border-line text-center text-[0.55rem] text-muted">None</div>}
+              <div className="flex flex-col gap-2">
+                <span className="text-[0.65rem] uppercase tracking-[0.2em] text-muted">Background artwork · Mughal Arch &amp; Grand Palace (tall 9:16 image, e.g. a floral palace hall)</span>
+                <div className="flex flex-wrap gap-2">
+                  {picker("backdrop-upload", draft.backdrop ? "Change background" : "Upload background", "image/*", (f) => uploadInto(f, "photo", (url) => update({ backdrop: url }), draft.backdrop))}
+                  {draft.backdrop && <button type="button" className="btn" onClick={() => { const u = draft.backdrop!; update({ backdrop: null }); deleteMedia(u); }}>Remove</button>}
                 </div>
               </div>
             </div>

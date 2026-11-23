@@ -87,6 +87,21 @@
 @keyframes ec-sheet { from { transform: translateY(100%); } to { transform: none; } }
 .anim-sheet { animation: ec-sheet .28s cubic-bezier(.2,.8,.2,1) both; }
 
+/* ---------- Story templates: text that writes itself, scene by scene ---------- */
+@keyframes st-in    { from { opacity: 0; filter: blur(7px); transform: translateY(.18em); } to { opacity: 1; filter: blur(0); transform: none; } }
+@keyframes st-draw  { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes st-grow  { from { opacity: 0; transform: scale(.25) rotate(-6deg); } to { opacity: 1; transform: none; } }
+@keyframes st-pop   { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: none; } }
+@keyframes st-card  { from { opacity: 0; transform: translateY(46px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes st-light { 0%,100% { transform: translate3d(-4%, 0, 0) skewX(-14deg); opacity: .8; } 50% { transform: translate3d(4%, 2%, 0) skewX(-10deg); opacity: 1; } }
+@keyframes st-flicker { 0%,100% { opacity: .75; transform: scale(1); } 40% { opacity: 1; transform: scale(1.08); } 70% { opacity: .85; transform: scale(.96); } }
+@keyframes st-zoom  { from { transform: scale(1); } to { transform: scale(2.4); opacity: 0; } }
+.st-l, .st-w { display: inline-block; animation: st-in .9s cubic-bezier(.2,.7,.2,1) both; }
+.st-fade { animation: st-in 1.1s cubic-bezier(.2,.7,.2,1) both; }
+.st-scene:not(.is-in) :is(.st-l, .st-w, .st-fade, .st-anim, .st-card) { animation-play-state: paused; }
+.st-hold :is(.st-l, .st-w, .st-fade, .st-anim, .st-card) { animation-play-state: paused; }
+.st-card { animation: st-card 1.1s cubic-bezier(.2,.7,.2,1) both; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .reveal-armed { opacity: 1 !important; transform: none !important; }

@@ -172,6 +172,21 @@ Every design also supports a **couple photo** (opening screen and intro), a **ph
 
 Animations switch off automatically for guests who turn on "reduce motion" on their phone. The keyframes live in `app/globals.css` (look for `ec-`).
 
+## Story templates (Mughal Arch, Ivory Deckle, Grand Palace, Pampas Emboss)
+
+Run `supabase/migrations/007_story.sql` once. These play like the reel-style video invitations: every part is a full-screen scene and its words write themselves in, letter by letter, as the guest scrolls.
+
+| Template | Opening | Scenes |
+| --- | --- | --- |
+| Mughal Arch | Couple photo with a large monogram; tap and you walk into the hall | Maroon onion-arch panel with gold lines, over a palace of roses, hanging jasmine strings and candles |
+| Ivory Deckle | Embossed maroon envelope with a gold wax seal; the flap folds back | Torn-edge ivory cards on embossed maroon; ends with a gold flower wreath around the names |
+| Grand Palace | Rose-covered palace doors swing open into the couple photo | Ivory arch panel between red drapes, rose-wrapped columns and lanterns |
+| Pampas Emboss | Embossed envelope flaps open to the four sides | Ivory paper, embossed pampas grass growing in, soft window light drifting; ends on maroon with a monogram frame that draws itself |
+
+Every Story template has: families line and parents, names, couple photo in an arch with the date, a **Save the Date calendar with a hand-drawn heart** around the day, a countdown, one scene per event (date, venue, time, Directions), the day's timeline, love story, gallery, map and RSVP.
+
+**For the most realistic look** (like the sample videos), upload a **Background artwork** in the editor (Couple section): a tall 9:16 image of a floral palace hall made with an AI image tool. Mughal Arch and Grand Palace use it behind every scene; without one, they draw their own palace.
+
 ## Table arrangement (`/dashboard/guests/tables`)
 
 Run `supabase/migrations/006_seating.sql` once. Then, for each event (Wedding, Homecoming…):

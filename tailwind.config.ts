@@ -21,6 +21,7 @@ export default {
         display: ["Georgia", "Times New Roman", "serif"],
         script: ["var(--font-script)", "cursive"],
         serif: ["var(--font-serif)", "Georgia", "serif"],
+        caps: ["var(--font-caps)", "Georgia", "serif"],
         sans: ["var(--font-body)", "Arial", "Helvetica", "sans-serif"],
       },
     },

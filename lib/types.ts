@@ -46,6 +46,7 @@ export type Invitation = {
   gallery: string[]; // photo URLs
   intro_video: string | null; // cinematic clip after "Open"
   illustration: string | null; // illustrated couple
+  backdrop?: string | null; // background artwork for the Story templates (migration 007)
   partner1_parents: string | null;
   partner2_parents: string | null;
   timeline: TimelineItem[];

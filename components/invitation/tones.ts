@@ -1,5 +1,5 @@
 /** Colour sets for the shared Countdown and RSVP parts, so each design can match its own look. */
-export type Tone = "gold" | "mono" | "ivory" | "velvet" | "palm" | "navy";
+export type Tone = "gold" | "mono" | "ivory" | "velvet" | "palm" | "navy" | "maroon";
 
 export const TONES: Record<Tone, {
   heading: string; card: string; label: string; doneBox: string; doneTitle: string; muted: string;
@@ -101,5 +101,21 @@ export const TONES: Record<Tone, {
     send: "self-center rounded-full bg-[#d9b36c] px-8 py-3 text-[0.65rem] uppercase tracking-[0.25em] text-[#0c1630] shadow-lg shadow-[#d9b36c]/20 disabled:opacity-60",
     error: "text-sm text-[#ffb4a8]",
     countBox: "rounded-2xl border border-[#d9b36c]/25 bg-white/[0.04] py-3", countNum: "block font-serif text-3xl tabular-nums text-[#f4ead8]", countLabel: "text-[0.58rem] uppercase tracking-[0.25em] text-[#d9b36c]",
+  },
+  maroon: {
+    heading: "text-center font-caps text-xl uppercase tracking-[0.12em] text-[#f0d9a8]",
+    card: "flex flex-col gap-3 border border-[#d9b46a]/35 bg-black/15 p-5",
+    label: "font-caps text-[0.62rem] uppercase tracking-[0.2em] text-[#d9b46a]",
+    doneBox: "border border-[#d9b46a]/70 p-4 text-center",
+    doneTitle: "block font-caps text-lg uppercase tracking-[0.08em] text-[#f6e7c6]",
+    muted: "text-[#e9d6c0]/80",
+    ghostBtn: "mt-3 border border-[#d9b46a]/70 px-4 py-2 font-caps text-[0.62rem] uppercase tracking-[0.2em] text-[#f0d9a8]",
+    optOn: "border border-[#e6c47a] bg-[#e6c47a] p-3 text-sm text-[#3e0a12]",
+    optOff: "border border-[#d9b46a]/40 p-3 text-sm text-[#f6e7c6] hover:bg-[#d9b46a]/10",
+    fieldLabel: "flex flex-col gap-1.5 font-caps text-[0.6rem] uppercase tracking-[0.2em] text-[#d9b46a]",
+    input: "border border-[#d9b46a]/35 bg-black/20 p-2.5 text-base normal-case tracking-normal text-[#f6e7c6]",
+    send: "self-center bg-gradient-to-b from-[#f2d58e] to-[#c99a45] px-8 py-3 font-caps text-[0.66rem] uppercase tracking-[0.22em] text-[#3e0a12] shadow-lg disabled:opacity-60",
+    error: "text-sm text-[#ffb4a8]",
+    countBox: "border-t border-[#d9b46a]/35 pt-3", countNum: "block font-caps text-3xl tabular-nums text-[#f6e7c6]", countLabel: "font-caps text-[0.55rem] uppercase tracking-[0.2em] text-[#d9b46a]",
   },
 };

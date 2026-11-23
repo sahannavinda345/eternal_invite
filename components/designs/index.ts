@@ -5,6 +5,10 @@ import type { DesignProps } from "./types";
 // Each design is loaded only when it is shown, so guests download one design, not all of them.
 const RoyalKandyan = dynamic<DesignProps>(() => import("./premium/RoyalKandyan"));
 const WatercolorStory = dynamic<DesignProps>(() => import("./premium/WatercolorStory"));
+const MughalArch = dynamic<DesignProps>(() => import("./story/MughalArch"));
+const IvoryDeckle = dynamic<DesignProps>(() => import("./story/IvoryDeckle"));
+const GrandPalace = dynamic<DesignProps>(() => import("./story/GrandPalace"));
+const PampasEmboss = dynamic<DesignProps>(() => import("./story/PampasEmboss"));
 const GoldenPoruwa = dynamic<DesignProps>(() => import("./GoldenPoruwa"));
 const EternalNoir = dynamic<DesignProps>(() => import("./EternalNoir"));
 const KandyanHeritage = dynamic<DesignProps>(() => import("./animated/KandyanHeritage"));
@@ -18,7 +22,7 @@ const BoardingPass = dynamic<DesignProps>(() => import("./animated/BoardingPass"
 export type DesignInfo = {
   id: string;
   name: string;
-  category: "Traditional" | "Church" | "Homecoming" | "Modern" | "Classic" | "Cinematic" | "Premium";
+  category: "Story" | "Traditional" | "Church" | "Homecoming" | "Modern" | "Classic" | "Cinematic" | "Premium";
   animated: boolean;
   swatch: string;
   Component: ComponentType<DesignProps>;
@@ -26,6 +30,10 @@ export type DesignInfo = {
 
 /** Add new designs here: they appear in the editor's template picker automatically. */
 export const DESIGNS: DesignInfo[] = [
+  { id: "mughal-arch", name: "Mughal Arch", category: "Story", animated: true, swatch: "#4d0d18", Component: MughalArch },
+  { id: "ivory-deckle", name: "Ivory Deckle", category: "Story", animated: true, swatch: "#efe4d4", Component: IvoryDeckle },
+  { id: "grand-palace", name: "Grand Palace", category: "Story", animated: true, swatch: "#9b1424", Component: GrandPalace },
+  { id: "pampas-emboss", name: "Pampas Emboss", category: "Story", animated: true, swatch: "#e9dfd2", Component: PampasEmboss },
   { id: "royal-kandyan", name: "Royal Kandyan", category: "Premium", animated: true, swatch: "#c9ae78", Component: RoyalKandyan },
   { id: "watercolor-story", name: "Watercolour Story", category: "Premium", animated: true, swatch: "#f3c9d3", Component: WatercolorStory },
   { id: "kandyan-heritage", name: "Kandyan Heritage", category: "Traditional", animated: true, swatch: "#b08a3e", Component: KandyanHeritage },
